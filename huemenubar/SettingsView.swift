@@ -1,8 +1,11 @@
-//
-//  SettingsView.swift
-//  huemenubar
-//
-//  Created by Oliver Harris on 19/11/2023.
-//
+import SwiftUI
 
-import Foundation
+struct SettingsView: View {
+    var body: some View {
+        Text("Hello!").padding()
+    }
+}
+
+#Preview {
+    SettingsView()
+}
