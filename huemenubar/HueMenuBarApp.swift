@@ -1,18 +1,20 @@
 import SwiftUI
 
 @main
-struct huemenubarApp: App {    
+struct HueMenuBarApp: App {
+    let client = HueClient()
+    
     var body: some Scene {
         // Simplified Menu Bar
         MenuBarExtra() {
-            HueScenesView()
+            HueScenesView().environment(client)
         } label: {
             Image(systemName: "lightbulb.max.fill").symbolRenderingMode(.hierarchical)
         }
         
         // Settings
         Settings {
-            SettingsView()
+            SettingsView().environment(client)
         }
     }
 }

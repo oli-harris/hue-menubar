@@ -1,5 +1,5 @@
 import Foundation
 
-class Bridge {
+class HueAPI {
     
 }

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(HueClient.self) var client
+    
     var body: some View {
         TabView {
             ConnectionSettingsView()
