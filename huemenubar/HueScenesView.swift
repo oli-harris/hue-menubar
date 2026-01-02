@@ -7,15 +7,17 @@ struct HueScenesView: View {
         Divider()
         
         // Rooms
-        // Title
         Text("Bedroom")
         Divider()
         
-        // Title
         Text("Living Room")
         Divider()
 
-        // Quit
+        // App Control
+        SettingsLink {
+            Text("Settings")
+        }.keyboardShortcut(",")
+        
         Button("Quit") {
             NSApplication.shared.terminate(nil)
         }.keyboardShortcut("q")
