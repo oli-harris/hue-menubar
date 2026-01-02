@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F16F7412B0A57140033E029 /* huemenubarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7402B0A57140033E029 /* huemenubarApp.swift */; };
+		4F035C1C2B2DFAF800EAF3AB /* ConnectionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */; };
+		4F035C1E2B2DFB1800EAF3AB /* ScenesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */; };
+		4F035C202B2E007100EAF3AB /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1F2B2E007100EAF3AB /* Bridge.swift */; };
+		4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */; };
 		4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7422B0A57140033E029 /* HueScenesView.swift */; };
 		4F16F7452B0A57150033E029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7442B0A57150033E029 /* Assets.xcassets */; };
 		4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7472B0A57150033E029 /* Preview Assets.xcassets */; };
@@ -16,8 +19,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettingsView.swift; sourceTree = "<group>"; };
+		4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesSettingsView.swift; sourceTree = "<group>"; };
+		4F035C1F2B2E007100EAF3AB /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
 		4F16F73D2B0A57140033E029 /* huemenubar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = huemenubar.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F16F7402B0A57140033E029 /* huemenubarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = huemenubarApp.swift; sourceTree = "<group>"; };
+		4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueMenuBarApp.swift; sourceTree = "<group>"; };
 		4F16F7422B0A57140033E029 /* HueScenesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueScenesView.swift; sourceTree = "<group>"; };
 		4F16F7442B0A57150033E029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F16F7472B0A57150033E029 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -37,6 +43,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F035C1A2B2DF6E600EAF3AB /* HueAPI */ = {
+			isa = PBXGroup;
+			children = (
+				4F16F74F2B0A59A50033E029 /* HueAPI.swift */,
+				4F035C1F2B2E007100EAF3AB /* Bridge.swift */,
+			);
+			path = HueAPI;
+			sourceTree = "<group>";
+		};
 		4F16F7342B0A57140033E029 = {
 			isa = PBXGroup;
 			children = (
@@ -56,9 +71,11 @@
 		4F16F73F2B0A57140033E029 /* huemenubar */ = {
 			isa = PBXGroup;
 			children = (
+				4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */,
+				4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */,
+				4F035C1A2B2DF6E600EAF3AB /* HueAPI */,
 				4F16F7532B0A89250033E029 /* SettingsView.swift */,
-				4F16F74F2B0A59A50033E029 /* HueAPI.swift */,
-				4F16F7402B0A57140033E029 /* huemenubarApp.swift */,
+				4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */,
 				4F16F7422B0A57140033E029 /* HueScenesView.swift */,
 				4F16F7442B0A57150033E029 /* Assets.xcassets */,
 				4F16F7492B0A57150033E029 /* huemenubar.entitlements */,
@@ -103,7 +120,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					4F16F73C2B0A57140033E029 = {
 						CreatedOnToolsVersion = 15.0.1;
@@ -145,10 +162,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F035C1E2B2DFB1800EAF3AB /* ScenesSettingsView.swift in Sources */,
 				4F16F7502B0A59A50033E029 /* HueAPI.swift in Sources */,
+				4F035C202B2E007100EAF3AB /* Bridge.swift in Sources */,
+				4F035C1C2B2DFAF800EAF3AB /* ConnectionSettingsView.swift in Sources */,
 				4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */,
 				4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */,
-				4F16F7412B0A57140033E029 /* huemenubarApp.swift in Sources */,
+				4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +209,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -252,6 +273,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -282,6 +304,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"huemenubar/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -308,6 +331,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"huemenubar/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

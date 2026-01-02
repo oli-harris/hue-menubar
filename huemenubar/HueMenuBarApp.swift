@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct huemenubarApp: App {    
     var body: some Scene {
-        // MenuBar
+        // Simplified Menu Bar
         MenuBarExtra() {
             HueScenesView()
         } label: {
@@ -11,11 +11,8 @@ struct huemenubarApp: App {
         }
         
         // Settings
-        #if os(macOS)
         Settings {
             SettingsView()
         }
-        #endif
-        
     }
 }
