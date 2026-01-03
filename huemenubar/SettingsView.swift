@@ -5,7 +5,7 @@ struct SettingsView: View {
     
     var body: some View {
         TabView {
-            ConnectionSettingsView()
+            BridgeSettingsView()
             .tabItem {
                 Label("Connection", systemImage:"server.rack")
             }

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F035C1C2B2DFAF800EAF3AB /* ConnectionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */; };
+		4F035C1C2B2DFAF800EAF3AB /* BridgeSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1B2B2DFAF800EAF3AB /* BridgeSettingsView.swift */; };
 		4F035C1E2B2DFB1800EAF3AB /* ScenesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */; };
 		4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */; };
 		4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7422B0A57140033E029 /* HueScenesView.swift */; };
@@ -15,10 +15,13 @@
 		4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7472B0A57150033E029 /* Preview Assets.xcassets */; };
 		4F16F7502B0A59A50033E029 /* HueClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F74F2B0A59A50033E029 /* HueClient.swift */; };
 		4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7532B0A89250033E029 /* SettingsView.swift */; };
+		4FCBB1002F088080003A8659 /* HueTrustDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */; };
+		4FCBB1032F088430003A8659 /* HueRootSecondary.cer in Resources */ = {isa = PBXBuildFile; fileRef = 4FCBB1022F088430003A8659 /* HueRootSecondary.cer */; };
+		4FCBB1042F088430003A8659 /* HueRootActive.cer in Resources */ = {isa = PBXBuildFile; fileRef = 4FCBB1012F088430003A8659 /* HueRootActive.cer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettingsView.swift; sourceTree = "<group>"; };
+		4F035C1B2B2DFAF800EAF3AB /* BridgeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeSettingsView.swift; sourceTree = "<group>"; };
 		4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScenesSettingsView.swift; sourceTree = "<group>"; };
 		4F16F73D2B0A57140033E029 /* huemenubar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = huemenubar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueMenuBarApp.swift; sourceTree = "<group>"; };
@@ -28,6 +31,9 @@
 		4F16F7492B0A57150033E029 /* huemenubar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = huemenubar.entitlements; sourceTree = "<group>"; };
 		4F16F74F2B0A59A50033E029 /* HueClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueClient.swift; sourceTree = "<group>"; };
 		4F16F7532B0A89250033E029 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueTrustDelegate.swift; sourceTree = "<group>"; };
+		4FCBB1012F088430003A8659 /* HueRootActive.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = HueRootActive.cer; sourceTree = "<group>"; };
+		4FCBB1022F088430003A8659 /* HueRootSecondary.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = HueRootSecondary.cer; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +50,7 @@
 		4F035C1A2B2DF6E600EAF3AB /* HueClient */ = {
 			isa = PBXGroup;
 			children = (
+				4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */,
 				4F16F74F2B0A59A50033E029 /* HueClient.swift */,
 			);
 			path = HueClient;
@@ -69,7 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */,
-				4F035C1B2B2DFAF800EAF3AB /* ConnectionSettingsView.swift */,
+				4F035C1B2B2DFAF800EAF3AB /* BridgeSettingsView.swift */,
 				4F035C1A2B2DF6E600EAF3AB /* HueClient */,
 				4F16F7532B0A89250033E029 /* SettingsView.swift */,
 				4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */,
@@ -77,6 +84,8 @@
 				4F16F7442B0A57150033E029 /* Assets.xcassets */,
 				4F16F7492B0A57150033E029 /* huemenubar.entitlements */,
 				4F16F7462B0A57150033E029 /* Preview Content */,
+				4FCBB1012F088430003A8659 /* HueRootActive.cer */,
+				4FCBB1022F088430003A8659 /* HueRootSecondary.cer */,
 			);
 			path = huemenubar;
 			sourceTree = "<group>";
@@ -148,6 +157,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */,
+				4FCBB1032F088430003A8659 /* HueRootSecondary.cer in Resources */,
+				4FCBB1042F088430003A8659 /* HueRootActive.cer in Resources */,
 				4F16F7452B0A57150033E029 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -161,10 +172,11 @@
 			files = (
 				4F035C1E2B2DFB1800EAF3AB /* ScenesSettingsView.swift in Sources */,
 				4F16F7502B0A59A50033E029 /* HueClient.swift in Sources */,
-				4F035C1C2B2DFAF800EAF3AB /* ConnectionSettingsView.swift in Sources */,
+				4F035C1C2B2DFAF800EAF3AB /* BridgeSettingsView.swift in Sources */,
 				4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */,
 				4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */,
 				4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */,
+				4FCBB1002F088080003A8659 /* HueTrustDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
