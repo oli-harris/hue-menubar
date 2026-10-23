@@ -73,10 +73,19 @@ struct SceneAPI: Decodable {
 
 // Internal Types
 
+// Setup progress: what we have stored
 enum HueBridgeState: String {
     case noBridge
     case bridgeFound
     case paired
+}
+
+// Reachability of a paired bridge, from the last request made to it
+enum HueConnection: String {
+    case checking
+    case connected
+    case unreachable
+    case unauthorized
 }
 
 
@@ -100,10 +109,12 @@ struct StoredOrder {
 }
 
 
+@MainActor
 @Observable
 final class HueClient {
     var bridgeStatus: String = ""
     var bridgeState: HueBridgeState = .noBridge
+    var connection: HueConnection = .checking
     
     var fetchStatus: String = ""
     
@@ -124,20 +135,38 @@ final class HueClient {
         if (!bridgeIP.isEmpty && !username.isEmpty && !bridgeID.isEmpty) {
             bridgeState = .paired
             configureHueHTTPS(bridgeId: bridgeID)
-        }
-        
-        Task {
-            if (!bridgeIP.isEmpty && !username.isEmpty && !bridgeID.isEmpty) {
-                await refresh()
-            }
+            Task { await refresh() }
         }
     }
-     
-     func refresh() async {
+    
+    func refresh() async {
+        guard bridgeState == .paired else {
+            fetchStatus = "No bridge paired"
+            return
+        }
+        
         // Load stored order
-        // Fetch rooms and scenes
-        let freshRooms = await fetchScenesIntoRooms()
-        self.rooms = freshRooms
+        do {
+            let roomsData = try await send("room")
+            let scenesData = try await send("scene")
+            let rooms = try JSONDecoder().decode(RoomsResponse.self, from: roomsData).data
+            let scenes = try JSONDecoder().decode(ScenesResponse.self, from: scenesData).data
+            
+            self.rooms = rooms.map { room in
+                HueRoom(
+                    id: room.id,
+                    groupedLightId: room.services.first { $0.rtype == "grouped_light" }?.rid ?? "",
+                    roomName: room.metadata.name,
+                    scenes: scenes
+                        .filter { $0.group.rid == room.id }
+                        .map { HueScene(id: $0.id, name: $0.metadata.name) }
+                )
+            }
+            fetchStatus = ""
+        } catch {
+            // Keep the last known rooms rather than emptying the menu
+            fetchStatus = "Error: \(error.localizedDescription)"
+        }
         // Apply order based on order, new elements to Int.max
     }
     
@@ -154,7 +183,28 @@ final class HueClient {
         config.timeoutIntervalForRequest = 6
         config.timeoutIntervalForResource = 6
 
+        // Sessions retain their delegate until invalidated (no-op on .shared)
+        hueSession.finishTasksAndInvalidate()
         self.hueSession = URLSession(configuration: config, delegate: d, delegateQueue: nil)
+    }
+    
+    func unpair() {
+        for key in ["hueBridgeIP", "hueUsername", "hueBridgeID"] {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        
+        hueSession.finishTasksAndInvalidate()
+        hueSession = URLSession.shared
+        hueDelegate = nil
+        
+        bridgeIP = ""
+        bridgeID = ""
+        username = ""
+        rooms = []
+        bridgeStatus = ""
+        fetchStatus = ""
+        connection = .checking
+        bridgeState = .noBridge
     }
     
     func discoverBridge() async {
@@ -261,14 +311,14 @@ final class HueClient {
                 print("Response not 200-300")
                 return
             }
-            
+
             let items = try JSONDecoder().decode([PairingItem].self, from: data)
             guard let first = items.first else {
                 self.bridgeStatus = "Pairing failed"
                 print("Decoding failed")
                 return
             }
-            
+
             if first.error != nil {
                 self.bridgeStatus = "Press the button on bridge to pair"
                 return
@@ -277,12 +327,15 @@ final class HueClient {
             if let success = first.success {
                 self.username = success.username
                 print("Paired: ", self.username)
+                self.connection = .checking
                 self.bridgeState = .paired
                 
                 // Store State
                 UserDefaults.standard.set(success.username, forKey: "hueUsername")
                 UserDefaults.standard.set(self.bridgeID, forKey: "hueBridgeID")
                 UserDefaults.standard.set(self.bridgeIP, forKey: "hueBridgeIP")
+                
+                await refresh()
             }
         }
         catch {
@@ -291,110 +344,44 @@ final class HueClient {
         }
     }
     
-    private func fetchRooms() async -> HueRooms {
-        guard self.bridgeState == HueBridgeState.paired else {
-            self.fetchStatus = "No bridge paired"
-            return []
-}
+    // All v2 calls go through here so `connection` always reflects the last response
+    private func send(_ path: String, method: String = "GET", body: Data? = nil) async throws -> Data {
+        guard bridgeState == .paired else { throw URLError(.userAuthenticationRequired) }
 
-        let url = URL(string: "https://\(self.bridgeIP)/clip/v2/resource/room")!
+        var request = URLRequest(url: URL(string: "https://\(bridgeIP)/clip/v2/resource/\(path)")!)
+        request.httpMethod = method
+        request.setValue(username, forHTTPHeaderField: "hue-application-key")
+        if let body {
+            request.httpBody = body
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(self.username, forHTTPHeaderField: "hue-application-key")
-        
+        let data: Data, response: URLResponse
         do {
-            let (data, response) = try await hueSession.data(for: request)
-            
-            let roomsResponse: RoomsResponse = try JSONDecoder().decode(RoomsResponse.self, from: data)
-            
-            let rooms: HueRooms = roomsResponse.data.map {
-                HueRoom(
-                    id: $0.id,
-                    groupedLightId: $0.services.first { $0.rtype == "grouped_light" }?.rid ?? "",
-                    roomName: $0.metadata.name,
-                    scenes: []
-                )
-            }
-            
-            return rooms
+            (data, response) = try await hueSession.data(for: request)
         } catch {
-            self.fetchStatus = "Error: \(error.localizedDescription)"
-            return []
-        }
-    }
-    
-    private func fetchScenesIntoRooms() async -> HueRooms {
-        guard self.bridgeState == HueBridgeState.paired else {
-            self.fetchStatus = "No bridge paired"
-            return []
+            connection = .unreachable
+            throw error
         }
         
-        let url = URL(string: "https://\(self.bridgeIP)/clip/v2/resource/scene")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(self.username, forHTTPHeaderField: "hue-application-key")
-        
-        do {
-            let (data, response) = try await hueSession.data(for: request)
-            
-            let scenesResponse: ScenesResponse = try JSONDecoder().decode(ScenesResponse.self, from: data)
-            
-            let rooms = await fetchRooms()
-            
-            let updatedRooms = rooms.map { room in
-                var updatedRoom = room
-                updatedRoom.scenes = scenesResponse.data
-                    .filter { $0.group.rid == room.id }
-                    .map { HueScene(id: $0.id, name: $0.metadata.name) }
-                return updatedRoom
-            }
-            
-            return updatedRooms;
-        } catch {
-            self.fetchStatus = "Error: \(error.localizedDescription)"
-            return []
+        let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+        if code == 401 || code == 403 {
+            connection = .unauthorized
+            throw URLError(.userAuthenticationRequired)
         }
+        
+        connection = .connected
+        guard (200..<300).contains(code) else { throw URLError(.badServerResponse) }
+        return data
     }
     
     func activateScene(scene: HueScene) async {
-        guard self.bridgeState == HueBridgeState.paired else {
-            self.fetchStatus = "No bridge paired"
-            return
-        }
-        
-        let url = URL(string: "https://\(self.bridgeIP)/clip/v2/resource/scene/\(scene.id)")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue(self.username, forHTTPHeaderField: "hue-application-key")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONEncoder().encode(["recall": ["action": "active"]])
-        
-        do {
-            let (data, response) = try await hueSession.data(for: request)
-        } catch {
-        }
+        let body = try? JSONEncoder().encode(["recall": ["action": "active"]])
+        _ = try? await send("scene/\(scene.id)", method: "PUT", body: body)
     }
     
     func turnOffRoom(room: HueRoom) async {
-        guard self.bridgeState == HueBridgeState.paired else {
-            self.fetchStatus = "No bridge paired"
-            return
-        }
-        
-        let url = URL(string: "https://\(self.bridgeIP)/clip/v2/resource/grouped_light/\(room.groupedLightId)")!
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue(self.username, forHTTPHeaderField: "hue-application-key")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONEncoder().encode(["on": ["on": false] ])
-        
-        do {
-            let (data, response) = try await hueSession.data(for: request)
-        } catch {
-        }
+        let body = try? JSONEncoder().encode(["on": ["on": false]])
+        _ = try? await send("grouped_light/\(room.groupedLightId)", method: "PUT", body: body)
     }
 }

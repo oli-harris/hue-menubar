@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HueScenesView: View {
-    let client = HueClient()
+    @Environment(HueClient.self) var client
     
     var body: some View {
         // Title
