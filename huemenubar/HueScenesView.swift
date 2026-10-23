@@ -56,6 +56,11 @@ struct HueScenesView: View {
         Divider()
 
         // App Control
+        if client.bridgeState == .paired {
+            Button("Refresh") {
+                Task { await client.refresh() }
+            }.keyboardShortcut("r")
+        }
         SettingsLink {
             Text("Settings…")
         }.keyboardShortcut(",", modifiers: .command)
