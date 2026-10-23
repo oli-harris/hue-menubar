@@ -23,6 +23,7 @@ struct SettingsView: View {
             }
             
         }.frame(minWidth:450, minHeight:250).padding()
+        .onAppear { NSApp.activate(ignoringOtherApps: true) }
     }
 }
 

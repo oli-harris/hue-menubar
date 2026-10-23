@@ -2,10 +2,17 @@ import SwiftUI
 
 struct HueScenesView: View {
     @Environment(HueClient.self) var client
+    @Environment(\.openSettings) private var openSettings
     
     // Cmd-1…9 map to enabled scenes in menu order across all rooms; offsets[i] is room i's first number.
     var offsets: [Int] {
         client.rooms.reduce(into: [0]) { $0.append($0.last! + $1.scenes.count) }
+    }
+
+    // LSUIElement apps open windows behind other apps unless activated first
+    func showSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        openSettings()
     }
 
     var body: some View {
@@ -22,9 +29,7 @@ struct HueScenesView: View {
         Divider()
         
         if client.bridgeState != .paired {
-            SettingsLink {
-                Text("Set Up Hue Bridge…")
-            }.simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
+            Button("Set Up Hue Bridge…", action: showSettings)
         } else {
             ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
                 Text(room.roomName)
@@ -61,10 +66,8 @@ struct HueScenesView: View {
                 Task { await client.refresh() }
             }.keyboardShortcut("r")
         }
-        SettingsLink {
-            Text("Settings…")
-        }.keyboardShortcut(",", modifiers: .command)
-        .simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
+        Button("Settings…", action: showSettings)
+            .keyboardShortcut(",", modifiers: .command)
         
         Button("Quit") {
             NSApplication.shared.terminate(nil)
