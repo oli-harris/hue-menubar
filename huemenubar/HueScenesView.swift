@@ -21,46 +21,53 @@ struct HueScenesView: View {
         }
         Divider()
         
-        ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
-            Section(room.roomName) {
-                Picker(room.roomName, selection: Binding(
-                    get: { room.activeSceneID },
-                    set: { id in
-                        if let scene = room.scenes.first(where: { $0.id == id }) {
-                            Task { await client.activateScene(scene: scene) }
+        if client.bridgeState != .paired {
+            SettingsLink {
+                Text("Set Up Hue Bridge…")
+            }.simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
+        } else {
+            ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
+                Section(room.roomName) {
+                    Picker(room.roomName, selection: Binding(
+                        get: { room.activeSceneID },
+                        set: { id in
+                            if let scene = room.scenes.first(where: { $0.id == id }) {
+                                Task { await client.activateScene(scene: scene) }
+                            }
+                        }
+                    )) {
+                        ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
+                            let number = offsets[roomIndex] + sceneIndex + 1
+                            Text(scene.name)
+                                .keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
+                                .tag(Optional(scene.id))
+                        }
+                    }.pickerStyle(.inline).labelsHidden()
+                
+                    Button("Room Off") {
+                        Task {
+                            await client.turnOffRoom(room: room)
                         }
                     }
-                )) {
-                    ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
-                        let number = offsets[roomIndex] + sceneIndex + 1
-                        Text(scene.name)
-                            .keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
-                            .tag(Optional(scene.id))
-                    }
-                }.pickerStyle(.inline).labelsHidden()
-                
-                Button("Room Off") {
-                    Task {
-                        await client.turnOffRoom(room: room)
-                    }
                 }
-            }
             
-            Divider()
-        }
-
-        Button("Lights Off") {
-            Task {
-                for room in client.rooms { await client.turnOffRoom(room: room) }
+                Divider()
             }
-        }.keyboardShortcut("0")
+
+            Button("Lights Off") {
+                Task {
+                    for room in client.rooms { await client.turnOffRoom(room: room) }
+                }
+            }.keyboardShortcut("0")
+        }
         
         Divider()
 
         // App Control
         SettingsLink {
             Text("Settings")
-        }.keyboardShortcut(",")
+        }.keyboardShortcut(",", modifiers: .command)
+        .simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
         
         Button("Quit") {
             NSApplication.shared.terminate(nil)
