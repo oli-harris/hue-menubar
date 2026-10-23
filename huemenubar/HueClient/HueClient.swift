@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 // API Types
@@ -164,6 +165,17 @@ final class HueClient {
             bridgeState = .paired
             configureHueHTTPS(bridgeId: bridgeID)
             Task { await refresh() }
+        }
+
+        // refresh() guards on pairing, so this also picks up a later pair
+        Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(300))
+                await self?.refresh()
+            }
+        }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in await self?.refresh() }
         }
     }
     
