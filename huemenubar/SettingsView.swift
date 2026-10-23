@@ -43,21 +43,29 @@ struct GeneralSettingsView: View {
     }
     
     var body: some View {
-        let info = Bundle.main.infoDictionary
         VStack {
             Form {
-                Toggle("Launch at login", isOn: Binding(
-                    get: { launchAtLogin },
-                    set: {
-                        Self.setLaunchAtLogin($0)
-                        launchAtLogin = SMAppService.mainApp.status == .enabled
+                Section {
+                    HStack {
+                        Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 64, height: 64)
+                        VStack(alignment: .leading) {
+                            Text("Hue Menubar").font(.headline)
+                            Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                ))
+                }
+                
+                Section {
+                    Toggle("Launch at login", isOn: Binding(
+                        get: { launchAtLogin },
+                        set: {
+                            Self.setLaunchAtLogin($0)
+                            launchAtLogin = SMAppService.mainApp.status == .enabled
+                        }
+                    ))
+                }
             }.formStyle(.grouped)
-            
-            Text("Hue Menubar \(info?["CFBundleShortVersionString"] as? String ?? "") (\(info?["CFBundleVersion"] as? String ?? ""))")
-                .font(.caption).foregroundStyle(.secondary)
-                .padding(.bottom)
         }
     }
 }
