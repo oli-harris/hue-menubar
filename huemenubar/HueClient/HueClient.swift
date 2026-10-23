@@ -95,7 +95,13 @@ struct HueRoom: Identifiable, Codable {
     let id: String
     let groupedLightId: String
     let roomName: String
-    var scenes: [HueScene]
+    var scenes: [HueScene]                  // Enabled, in menu order
+    var disabledScenes: [HueScene] = []
+    
+    // Scenes as edited in settings: enabled, nil as the divider, then disabled
+    var editorItems: [HueScene?] {
+        scenes.map(Optional.some) + [nil] + disabledScenes.map(Optional.some)
+    }
 }
 
 struct HueScene: Identifiable, Codable {
@@ -103,9 +109,30 @@ struct HueScene: Identifiable, Codable {
     let name: String
 }
 
-struct StoredOrder {
-    var roomOrder: [String]
-    var sceneOrder: [String: [String]]
+struct StoredOrder: Codable {
+    var roomOrder: [String] = []
+    // Scene IDs per room, scenes after `disabledMarker` are hidden from the menu
+    var sceneOrder: [String: [String]] = [:]
+    
+    static let disabledMarker = "---"
+    
+    // Unknown rooms go last, new scenes go to the bottom of the enabled scenes
+    func apply(to rooms: [HueRoom]) -> [HueRoom] {
+        let ordered = roomOrder.compactMap { id in rooms.first { $0.id == id } }
+            + rooms.filter { !roomOrder.contains($0.id) }
+        
+        return ordered.map { room in
+            var room = room
+            let all = room.scenes + room.disabledScenes
+            let stored = sceneOrder[room.id] ?? []
+            let split = stored.firstIndex(of: Self.disabledMarker) ?? stored.count
+            let pick = { (ids: ArraySlice<String>) in ids.compactMap { id in all.first { $0.id == id } } }
+            
+            room.scenes = pick(stored[..<split]) + all.filter { !stored.contains($0.id) }
+            room.disabledScenes = pick(stored[split...].dropFirst())
+            return room
+        }
+    }
 }
 
 
@@ -146,14 +173,13 @@ final class HueClient {
             return
         }
         
-        // Load stored order
         do {
             let roomsData = try await send("room")
             let scenesData = try await send("scene")
             let rooms = try JSONDecoder().decode(RoomsResponse.self, from: roomsData).data
             let scenes = try JSONDecoder().decode(ScenesResponse.self, from: scenesData).data
             
-            self.rooms = rooms.map { room in
+            self.rooms = loadOrder().apply(to: rooms.map { room in
                 HueRoom(
                     id: room.id,
                     groupedLightId: room.services.first { $0.rtype == "grouped_light" }?.rid ?? "",
@@ -162,13 +188,50 @@ final class HueClient {
                         .filter { $0.group.rid == room.id }
                         .map { HueScene(id: $0.id, name: $0.metadata.name) }
                 )
-            }
+            })
             fetchStatus = ""
         } catch {
             // Keep the last known rooms rather than emptying the menu
             fetchStatus = "Error: \(error.localizedDescription)"
         }
-        // Apply order based on order, new elements to Int.max
+    }
+    
+    func moveRoom(from: IndexSet, to: Int) {
+        rooms.move(fromOffsets: from, toOffset: to)
+        saveOrder()
+    }
+    
+    // Moves within a room's editorItems; dragging across the divider enables/disables a scene
+    func moveScene(roomID: String, from: IndexSet, to: Int) {
+        guard let i = rooms.firstIndex(where: { $0.id == roomID }) else { return }
+        
+        var items = rooms[i].editorItems
+        items.move(fromOffsets: from, toOffset: to)
+        let split = items.firstIndex { $0 == nil }!
+        
+        rooms[i].scenes = items[..<split].compactMap { $0 }
+        rooms[i].disabledScenes = items[(split + 1)...].compactMap { $0 }
+        saveOrder()
+    }
+    
+    private func loadOrder() -> StoredOrder {
+        guard let data = UserDefaults.standard.data(forKey: "hueOrder"),
+              let order = try? JSONDecoder().decode(StoredOrder.self, from: data) else {
+            return StoredOrder()
+        }
+        return order
+    }
+    
+    private func saveOrder() {
+        var order = loadOrder()
+        order.roomOrder = rooms.map(\.id)
+        for room in rooms {
+            order.sceneOrder[room.id] = room.scenes.map(\.id) + [StoredOrder.disabledMarker] + room.disabledScenes.map(\.id)
+        }
+        
+        if let data = try? JSONEncoder().encode(order) {
+            UserDefaults.standard.set(data, forKey: "hueOrder")
+        }
     }
     
     func configureHueHTTPS(bridgeId: String) {
