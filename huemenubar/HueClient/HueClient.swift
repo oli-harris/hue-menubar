@@ -506,15 +506,25 @@ final class HueClient {
     func activateScene(scene: HueScene) async {
         let body = try? JSONEncoder().encode(["recall": ["action": "active"]])
         // Optimistic: show the checkmark before the bridge responds
-        if let i = rooms.firstIndex(where: { $0.scenes.contains { $0.id == scene.id } }) {
-            rooms[i].activeSceneID = scene.id
+        let i = rooms.firstIndex(where: { $0.scenes.contains { $0.id == scene.id } })
+        let previous = i.flatMap { rooms[$0].activeSceneID }
+        if let i { rooms[i].activeSceneID = scene.id }
+        do {
+            _ = try await send("scene/\(scene.id)", method: "PUT", body: body)
+        } catch {
+            if let i { rooms[i].activeSceneID = previous }
         }
-        _ = try? await send("scene/\(scene.id)", method: "PUT", body: body)
     }
     
     func turnOffRoom(room: HueRoom) async {
         let body = try? JSONEncoder().encode(["on": ["on": false]])
-        if let i = rooms.firstIndex(where: { $0.id == room.id }) { rooms[i].activeSceneID = nil }
-        _ = try? await send("grouped_light/\(room.groupedLightId)", method: "PUT", body: body)
+        let i = rooms.firstIndex(where: { $0.id == room.id })
+        let previous = i.flatMap { rooms[$0].activeSceneID }
+        if let i { rooms[i].activeSceneID = nil }
+        do {
+            _ = try await send("grouped_light/\(room.groupedLightId)", method: "PUT", body: body)
+        } catch {
+            if let i { rooms[i].activeSceneID = previous }
+        }
     }
 }
