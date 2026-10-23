@@ -14,7 +14,7 @@ struct HueScenesView: View {
         Text("Philips Hue").font(.headline)
         Divider()
         
-        ForEach(Array(client.rooms.enumerated()), id: \.element.id) { roomIndex, room in
+        ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
             Section(room.roomName) {
                 Picker(room.roomName, selection: Binding(
                     get: { room.activeSceneID },
