@@ -61,6 +61,11 @@ struct SceneAPI: Decodable {
     let id: String
     let metadata: Metadata
     let group: Group
+    let status: Status?
+    
+    struct Status: Decodable {
+        let active: String?     // inactive, static or dynamic_palette
+    }
     
     struct Metadata: Decodable {
         let name: String
@@ -98,6 +103,7 @@ struct HueRoom: Identifiable, Codable {
     let roomName: String
     var scenes: [HueScene]                  // Enabled, in menu order
     var disabledScenes: [HueScene] = []
+    var activeSceneID: String?
     
     // Scenes as edited in settings: enabled, nil as the divider, then disabled
     var editorItems: [HueScene?] {
@@ -198,7 +204,8 @@ final class HueClient {
                     roomName: room.metadata.name,
                     scenes: scenes
                         .filter { $0.group.rid == room.id }
-                        .map { HueScene(id: $0.id, name: $0.metadata.name) }
+                        .map { HueScene(id: $0.id, name: $0.metadata.name) },
+                    activeSceneID: scenes.first { $0.group.rid == room.id && $0.status?.active.map { $0 != "inactive" } == true }?.id
                 )
             })
             fetchStatus = ""
@@ -479,11 +486,16 @@ final class HueClient {
     
     func activateScene(scene: HueScene) async {
         let body = try? JSONEncoder().encode(["recall": ["action": "active"]])
+        // Optimistic: show the checkmark before the bridge responds
+        if let i = rooms.firstIndex(where: { $0.scenes.contains { $0.id == scene.id } }) {
+            rooms[i].activeSceneID = scene.id
+        }
         _ = try? await send("scene/\(scene.id)", method: "PUT", body: body)
     }
     
     func turnOffRoom(room: HueRoom) async {
         let body = try? JSONEncoder().encode(["on": ["on": false]])
+        if let i = rooms.firstIndex(where: { $0.id == room.id }) { rooms[i].activeSceneID = nil }
         _ = try? await send("grouped_light/\(room.groupedLightId)", method: "PUT", body: body)
     }
 }

@@ -15,22 +15,27 @@ struct HueScenesView: View {
         Divider()
         
         ForEach(Array(client.rooms.enumerated()), id: \.element.id) { roomIndex, room in
-            Text(room.roomName)
-            
-            ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
-                let number = offsets[roomIndex] + sceneIndex + 1
-                Button() {
-                    Task {
-                        await client.activateScene(scene: scene)
+            Section(room.roomName) {
+                Picker(room.roomName, selection: Binding(
+                    get: { room.activeSceneID },
+                    set: { id in
+                        if let scene = room.scenes.first(where: { $0.id == id }) {
+                            Task { await client.activateScene(scene: scene) }
+                        }
                     }
-                } label: {
-                    Text(scene.name)
-                }.keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
-            }
-            
-            Button("Room Off") {
-                Task {
-                    await client.turnOffRoom(room: room)
+                )) {
+                    ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
+                        let number = offsets[roomIndex] + sceneIndex + 1
+                        Text(scene.name)
+                            .keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
+                            .tag(Optional(scene.id))
+                    }
+                }.pickerStyle(.inline).labelsHidden()
+                
+                Button("Room Off") {
+                    Task {
+                        await client.turnOffRoom(room: room)
+                    }
                 }
             }
             
