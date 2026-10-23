@@ -188,7 +188,7 @@ final class HueClient {
         }
     }
     
-    func refresh() async {
+    func refresh(rediscover: Bool = true) async {
         guard bridgeState == .paired else {
             fetchStatus = "No bridge paired"
             return
@@ -215,7 +215,23 @@ final class HueClient {
         } catch {
             // Keep the last known rooms rather than emptying the menu
             fetchStatus = "Error: \(error.localizedDescription)"
+            // The router may have given the bridge a new IP; retry once at most
+            if rediscover, connection == .unreachable, await updateBridgeIP() {
+                await refresh(rediscover: false)
+            }
         }
+    }
+    
+    // Returns true when discovery found the paired bridge at a different IP
+    private func updateBridgeIP() async -> Bool {
+        guard let (data, _) = try? await URLSession.shared.data(from: URL(string: "https://discovery.meethue.com")!),
+              let items = try? JSONDecoder().decode([DiscoveryItem].self, from: data),
+              let item = items.first(where: { $0.id.caseInsensitiveCompare(bridgeID) == .orderedSame }),
+              item.internalipaddress != bridgeIP else { return false }
+        
+        bridgeIP = item.internalipaddress
+        UserDefaults.standard.set(bridgeIP, forKey: "hueBridgeIP")
+        return true
     }
     
     func moveRoom(from: IndexSet, to: Int) {
