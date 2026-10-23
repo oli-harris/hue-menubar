@@ -37,11 +37,13 @@ struct HueScenesView: View {
             Divider()
         }
 
-        Button("All Lights Off") {
+        Button("Lights Off") {
             Task {
                 for room in client.rooms { await client.turnOffRoom(room: room) }
             }
         }.keyboardShortcut("0")
+        
+        Divider()
 
         // App Control
         SettingsLink {
