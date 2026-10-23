@@ -16,7 +16,7 @@ struct SettingsView: View {
             }
             .tag(Tab.general)
 
-            BridgeSettingsView()
+            BridgeSettingsView(onChooseScenes: { tab = .scenes })
             .tabItem {
                 Label("Bridge", systemImage:"network")
             }

@@ -407,14 +407,14 @@ final class HueClient {
 
         // The link button stays active for 30s after being pressed, so keep trying for that long
         let deadline = Date().addingTimeInterval(30)
-        bridgeStatus = "Press the button on the bridge"
+        bridgeStatus = "Press the button on the bridge to pair."
         while bridgeState == .bridgeFound, Date() < deadline {
             if await attemptPair() { return }
             try? await Task.sleep(for: .seconds(2))
         }
 
         if bridgeState == .bridgeFound {
-            bridgeStatus = "Timed out. Press the bridge button, then Pair Bridge"
+            bridgeStatus = "Pairing timed out."
         }
     }
 
