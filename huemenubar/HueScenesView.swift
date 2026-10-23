@@ -12,6 +12,13 @@ struct HueScenesView: View {
         let offsets = offsets
         // Title
         Text("Philips Hue").font(.headline)
+        if client.bridgeState == .paired {
+            switch client.connection {
+            case .unreachable: Text("Bridge unreachable")
+            case .unauthorized: Text("Bridge rejected this app")
+            default: EmptyView()
+            }
+        }
         Divider()
         
         ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
