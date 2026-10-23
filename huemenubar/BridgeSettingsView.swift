@@ -5,44 +5,73 @@ struct BridgeSettingsView: View {
     @State var manualEntry = false
     @State var ipEntry = ""
     @State var confirmUnpair = false
+    @State var showUsername = false
     
     var body: some View {
         switch client.bridgeState {
 
         case .paired:
             VStack {
-                switch client.connection {
-                case .checking:
-                    Text("Connecting to Hue Bridge").font(.title)
-                    ProgressView().controlSize(.small).padding(2)
-                case .connected:
-                    Text("Connected to Hue Bridge ☀️").font(.title)
-                case .unreachable:
-                    Text("Hue Bridge unreachable").font(.title)
-                    Text("Paired, but can't reach the bridge at \(client.bridgeIP). Check it's powered on and on this network.")
-                        .multilineTextAlignment(.center).padding(2)
-                case .unauthorized:
-                    Text("Hue Bridge rejected this app").font(.title)
-                    Text("The pairing is no longer valid. Unpair and pair again.")
-                        .multilineTextAlignment(.center).padding(2)
-                }
-
-                Spacer()
-
-                HStack {
+                Form {
+                    LabeledContent("Status") {
+                        HStack {
+                            switch client.connection {
+                            case .checking: Circle().fill(.gray).frame(width: 8, height: 8); Text("Connecting…"); ProgressView().controlSize(.small)
+                            case .connected: Circle().fill(.green).frame(width: 8, height: 8); Text("Connected")
+                            case .unreachable: Circle().fill(.orange).frame(width: 8, height: 8); Text("Unreachable")
+                            case .unauthorized: Circle().fill(.red).frame(width: 8, height: 8); Text("Rejected")
+                            }
+                        }
+                    }
+                    
                     if client.connection == .unreachable {
+                        Text("Paired, but can't reach the bridge at \(client.bridgeIP). Check it's powered on and on this network.")
+                            .foregroundStyle(.secondary)
                         Button("Retry") {
                             client.connection = .checking
                             Task {
                                 await client.refresh()
                             }
                         }
+                    } else if client.connection == .unauthorized {
+                        Text("The pairing is no longer valid. Unpair and pair again.")
+                            .foregroundStyle(.secondary)
                     }
+                    
+                    LabeledContent("IP address", value: client.bridgeIP).textSelection(.enabled)
+                    LabeledContent("Bridge ID", value: client.bridgeID).textSelection(.enabled)
+                    LabeledContent("Username") {
+                        HStack {
+                            if showUsername {
+                                Text(client.username).textSelection(.enabled)
+                            } else {
+                                Text("••••••••")
+                            }
+                            Button {
+                                showUsername.toggle()
+                            } label: {
+                                Image(systemName: showUsername ? "eye.slash" : "eye")
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel(showUsername ? "Hide username" : "Show username")
+                        }
+                    }
+                    LabeledContent("Last refresh") {
+                        if let date = client.lastRefresh {
+                            Text(date, format: .relative(presentation: .named))
+                        } else {
+                            Text("Never")
+                        }
+                    }
+                    LabeledContent("Rooms", value: "\(client.rooms.count)")
+                }.formStyle(.grouped)
 
-                    Button("Unpair Bridge", role: .destructive) {
+                HStack {
+                    Spacer()
+                    Button("Unpair Bridge…", role: .destructive) {
                         confirmUnpair = true
-                    }
-                }
+                    }.foregroundStyle(.red)
+                }.padding([.horizontal, .bottom])
             }
             .confirmationDialog("Unpair from Hue Bridge?", isPresented: $confirmUnpair) {
                 Button("Unpair", role: .destructive) {
@@ -75,7 +104,7 @@ struct BridgeSettingsView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(client.isPairing)
                 }
-            }
+            }.padding()
         
                     
         case .noBridge:
@@ -122,7 +151,7 @@ struct BridgeSettingsView: View {
                     }
                 }
                 
-            }
+            }.padding()
         }
     }
     

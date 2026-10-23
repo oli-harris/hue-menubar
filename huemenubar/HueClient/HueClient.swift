@@ -162,6 +162,7 @@ final class HueClient {
     var username: String = ""
     
     var rooms: [HueRoom] = []
+    var lastRefresh: Date?
 
     private static let log = Logger(subsystem: "com.harris.huemenubar", category: "HueClient")
 
@@ -215,6 +216,7 @@ final class HueClient {
                 )
             })
             fetchStatus = ""
+            lastRefresh = Date()
         } catch {
             // Keep the last known rooms rather than emptying the menu
             fetchStatus = "Error: \(error.localizedDescription)"
@@ -308,6 +310,7 @@ final class HueClient {
         bridgeID = ""
         username = ""
         rooms = []
+        lastRefresh = nil
         bridgeStatus = ""
         fetchStatus = ""
         connection = .checking

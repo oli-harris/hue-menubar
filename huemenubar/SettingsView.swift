@@ -24,11 +24,6 @@ struct SettingsView: View {
                 }
             }
             
-            DebugSettingsView()
-            .tabItem {
-                Label("Developer", systemImage:"info.circle.text.page")
-            }
-            
         }.frame(width: 520, height: 400)
         .onAppear { NSApp.activate(ignoringOtherApps: true) }
     }
