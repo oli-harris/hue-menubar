@@ -10,9 +10,11 @@ struct SettingsView: View {
                 Label("Bridge Connection", systemImage:"network")
             }
                 
-            ScenesSettingsView()
-            .tabItem {
-                Label("Scenes Editor", systemImage:"sun.horizon")
+            if client.bridgeState == .paired {
+                ScenesSettingsView()
+                .tabItem {
+                    Label("Scenes Editor", systemImage:"sun.horizon")
+                }
             }
             
             DebugSettingsView()

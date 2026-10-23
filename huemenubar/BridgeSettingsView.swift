@@ -56,6 +56,9 @@ struct BridgeSettingsView: View {
             VStack {
                 Text("Hue Bridge found!").font(.title)
                 Text(client.bridgeStatus).padding(2)
+                if client.isPairing {
+                    ProgressView().controlSize(.small)
+                }
 
                 Spacer()
 
@@ -70,6 +73,7 @@ struct BridgeSettingsView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
+                    .disabled(client.isPairing)
                 }
             }
         

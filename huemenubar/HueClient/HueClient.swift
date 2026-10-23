@@ -115,6 +115,7 @@ final class HueClient {
     var bridgeStatus: String = ""
     var bridgeState: HueBridgeState = .noBridge
     var connection: HueConnection = .checking
+    var isPairing = false
     
     var fetchStatus: String = ""
     
@@ -284,12 +285,29 @@ final class HueClient {
     }
     
     func pairBridge() async {
-        self.bridgeStatus = "Pairing with Hue Bridge"
         guard !bridgeIP.isEmpty else {
             self.bridgeState = .noBridge
             return
         }
-        
+
+        isPairing = true
+        defer { isPairing = false }
+
+        // The link button stays active for 30s after being pressed, so keep trying for that long
+        let deadline = Date().addingTimeInterval(30)
+        bridgeStatus = "Press the button on the bridge"
+        while bridgeState == .bridgeFound, Date() < deadline {
+            if await attemptPair() { return }
+            try? await Task.sleep(for: .seconds(2))
+        }
+
+        if bridgeState == .bridgeFound {
+            bridgeStatus = "Timed out. Press the bridge button, then Pair Bridge"
+        }
+    }
+
+    // Returns true when finished (paired or failed), false when the link button hasn't been pressed yet
+    private func attemptPair() async -> Bool {
         let url = URL(string: "https://\(self.bridgeIP)/api")!
         
         var request = URLRequest(url: url)
@@ -309,21 +327,28 @@ final class HueClient {
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
                 self.bridgeStatus = "Pairing failed"
                 print("Response not 200-300")
-                return
+                return true
             }
 
             let items = try JSONDecoder().decode([PairingItem].self, from: data)
             guard let first = items.first else {
                 self.bridgeStatus = "Pairing failed"
                 print("Decoding failed")
-                return
+                return true
             }
 
-            if first.error != nil {
-                self.bridgeStatus = "Press the button on bridge to pair"
-                return
+            if let error = first.error {
+                // 101: link button not pressed
+                guard error.type == 101 else {
+                    self.bridgeStatus = "Pairing failed: \(error.description)"
+                    return true
+                }
+                return false
             }
-            
+
+            // Cancelled while the request was in flight
+            guard bridgeState == .bridgeFound else { return true }
+
             if let success = first.success {
                 self.username = success.username
                 print("Paired: ", self.username)
@@ -337,10 +362,12 @@ final class HueClient {
                 
                 await refresh()
             }
+            return true
         }
         catch {
             self.bridgeStatus = "Pairing failed"
             print("HTTP Error", error)
+            return true
         }
     }
     
