@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import os
 
 // API Types
 
@@ -162,6 +163,8 @@ final class HueClient {
     
     var rooms: [HueRoom] = []
 
+    private static let log = Logger(subsystem: "com.harris.huemenubar", category: "HueClient")
+
     init() {
         bridgeIP = UserDefaults.standard.string(forKey: "hueBridgeIP") ?? ""
         username = UserDefaults.standard.string(forKey: "hueUsername") ?? ""
@@ -215,6 +218,7 @@ final class HueClient {
         } catch {
             // Keep the last known rooms rather than emptying the menu
             fetchStatus = "Error: \(error.localizedDescription)"
+            Self.log.error("Refresh failed: \(error)")
             // The router may have given the bridge a new IP; retry once at most
             if rediscover, connection == .unreachable, await updateBridgeIP() {
                 await refresh(rediscover: false)
@@ -229,6 +233,7 @@ final class HueClient {
               let item = items.first(where: { $0.id.caseInsensitiveCompare(bridgeID) == .orderedSame }),
               item.internalipaddress != bridgeIP else { return false }
         
+        Self.log.info("Bridge IP changed from \(self.bridgeIP) to \(item.internalipaddress)")
         bridgeIP = item.internalipaddress
         UserDefaults.standard.set(bridgeIP, forKey: "hueBridgeIP")
         return true
@@ -427,14 +432,14 @@ final class HueClient {
             
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
                 self.bridgeStatus = "Pairing failed"
-                print("Response not 200-300")
+                Self.log.error("Pairing response was not 2xx")
                 return true
             }
 
             let items = try JSONDecoder().decode([PairingItem].self, from: data)
             guard let first = items.first else {
                 self.bridgeStatus = "Pairing failed"
-                print("Decoding failed")
+                Self.log.error("Pairing response was empty")
                 return true
             }
 
@@ -452,7 +457,7 @@ final class HueClient {
 
             if let success = first.success {
                 self.username = success.username
-                print("Paired: ", self.username)
+                Self.log.info("Paired with bridge \(self.bridgeID)")
                 self.connection = .checking
                 self.bridgeState = .paired
                 
@@ -467,7 +472,7 @@ final class HueClient {
         }
         catch {
             self.bridgeStatus = "Pairing failed"
-            print("HTTP Error", error)
+            Self.log.error("Pairing request failed: \(error)")
             return true
         }
     }
@@ -512,6 +517,7 @@ final class HueClient {
         do {
             _ = try await send("scene/\(scene.id)", method: "PUT", body: body)
         } catch {
+            Self.log.error("Activating scene failed: \(error)")
             if let i { rooms[i].activeSceneID = previous }
         }
     }
@@ -524,6 +530,7 @@ final class HueClient {
         do {
             _ = try await send("grouped_light/\(room.groupedLightId)", method: "PUT", body: body)
         } catch {
+            Self.log.error("Turning off room failed: \(error)")
             if let i { rooms[i].activeSceneID = previous }
         }
     }
