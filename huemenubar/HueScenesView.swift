@@ -27,30 +27,22 @@ struct HueScenesView: View {
             }.simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
         } else {
             ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
-                Section(room.roomName) {
-                    Picker(room.roomName, selection: Binding(
-                        get: { room.activeSceneID },
-                        set: { id in
-                            if let scene = room.scenes.first(where: { $0.id == id }) {
-                                Task { await client.activateScene(scene: scene) }
-                            }
-                        }
-                    )) {
-                        ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
-                            let number = offsets[roomIndex] + sceneIndex + 1
-                            Text(scene.name)
-                                .keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
-                                .tag(Optional(scene.id))
-                        }
-                    }.pickerStyle(.inline).labelsHidden()
-                
-                    Button("Room Off") {
-                        Task {
-                            await client.turnOffRoom(room: room)
-                        }
+                Text(room.roomName)
+                // Toggles render as checkmark items in an NSMenu
+                ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
+                    let number = offsets[roomIndex] + sceneIndex + 1
+                    Toggle(scene.name, isOn: Binding(
+                        get: { room.activeSceneID == scene.id },
+                        set: { _ in Task { await client.activateScene(scene: scene) } }
+                    ))
+                    .keyboardShortcut(number <= 9 ? KeyboardShortcut(KeyEquivalent(Character("\(number)"))) : nil)
+                }
+                Button("Room Off") {
+                    Task {
+                        await client.turnOffRoom(room: room)
                     }
                 }
-            
+
                 Divider()
             }
 
@@ -65,7 +57,7 @@ struct HueScenesView: View {
 
         // App Control
         SettingsLink {
-            Text("Settings")
+            Text("Settings…")
         }.keyboardShortcut(",", modifiers: .command)
         .simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
         
