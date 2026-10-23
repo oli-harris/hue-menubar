@@ -3,29 +3,38 @@ import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
+    enum Tab { case general, bridge, scenes }
+    
     @Environment(HueClient.self) var client
+    @State private var tab = Tab.general
     
     var body: some View {
-        TabView {
+        TabView(selection: $tab) {
             GeneralSettingsView()
             .tabItem {
                 Label("General", systemImage:"gearshape")
             }
+            .tag(Tab.general)
 
             BridgeSettingsView()
             .tabItem {
                 Label("Bridge", systemImage:"network")
             }
+            .tag(Tab.bridge)
                 
             if client.bridgeState == .paired {
                 ScenesSettingsView()
                 .tabItem {
                     Label("Scenes Editor", systemImage:"sun.horizon")
                 }
+                .tag(Tab.scenes)
             }
             
         }.frame(width: 520, height: 400)
-        .onAppear { NSApp.activate(ignoringOtherApps: true) }
+        .onAppear {
+            NSApp.activate(ignoringOtherApps: true)
+            if client.bridgeState != .paired { tab = .bridge }
+        }
     }
 }
 

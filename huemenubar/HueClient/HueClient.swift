@@ -161,6 +161,9 @@ final class HueClient {
     var bridgeID: String = ""
     var username: String = ""
     
+    // Shared so the app delegate can check pairing at launch
+    static let shared = HueClient()
+
     var rooms: [HueRoom] = []
     var lastRefresh: Date?
 
