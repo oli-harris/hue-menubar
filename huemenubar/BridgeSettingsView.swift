@@ -10,18 +10,14 @@ struct BridgeSettingsView: View {
 
         case .paired:
             VStack {
-                Text("Connected to Hue Bridge").font(.title)
-                
+                Text("Connected to Hue Bridge ☀️").font(.title)
                 Spacer()
-                
-                Text("Bridge IP: \(client.bridgeIP)")
-                    .font(.caption)
             }
 
         case .bridgeFound:
             VStack {
                 Text("Hue Bridge found!").font(.title)
-                Text(client.status).padding(2)
+                Text(client.bridgeStatus).padding(2)
                 
                 Spacer()
                 
@@ -37,7 +33,7 @@ struct BridgeSettingsView: View {
         case .noBridge:
             VStack {
                 Text("Connect a Hue Bridge").font(.title)
-                Text(client.status).padding(2)
+                Text(client.bridgeStatus).padding(2)
                 
                 Spacer()
                 

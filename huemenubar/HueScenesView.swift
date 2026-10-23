@@ -1,17 +1,34 @@
 import SwiftUI
 
 struct HueScenesView: View {
+    let client = HueClient()
+    
     var body: some View {
         // Title
         Text("Philips Hue").font(.headline)
         Divider()
         
-        // Rooms
-        Text("Bedroom")
-        Divider()
-        
-        Text("Living Room")
-        Divider()
+        ForEach(client.rooms) { room in
+            Text(room.roomName)
+            
+            ForEach(room.scenes) { scene in
+                Button() {
+                    Task {
+                        await client.activateScene(scene: scene)
+                    }
+                } label: {
+                    Text(scene.name)
+                }
+            }
+            
+            Button("Lights Off") {
+                Task {
+                    await client.turnOffRoom(room: room)
+                }
+            }
+            
+            Divider()
+        }
 
         // App Control
         SettingsLink {

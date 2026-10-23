@@ -7,12 +7,17 @@ struct SettingsView: View {
         TabView {
             BridgeSettingsView()
             .tabItem {
-                Label("Connection", systemImage:"server.rack")
+                Label("Bridge Connection", systemImage:"network")
             }
                 
             ScenesSettingsView()
             .tabItem {
-                Label("Scenes", systemImage:"sun.horizon")
+                Label("Scenes Editor", systemImage:"sun.horizon")
+            }
+            
+            DebugSettingsView()
+            .tabItem {
+                Label("Developer", systemImage:"info.circle.text.page")
             }
             
         }.frame(minWidth:450, minHeight:250).padding()
