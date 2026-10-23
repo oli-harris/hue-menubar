@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2C2C30"/><stop offset="0.6" stop-color="#121214"/></linearGradient>
+    <linearGradient id="light" gradientUnits="userSpaceOnUse" x1="300" y1="180" x2="720" y2="660"><stop offset="0" stop-color="#7C3AED"/><stop offset="0.55" stop-color="#C026D3"/><stop offset="0.88" stop-color="#D61F69"/><stop offset="1" stop-color="#E5243B"/></linearGradient>
+    <radialGradient id="glow" cx="512" cy="440" r="330" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#D946EF" stop-opacity="0.35"/><stop offset="1" stop-color="#D946EF" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <g transform="translate(512 476) scale(0.85) translate(-512 -476)">
+    <circle cx="512" cy="440" r="330" fill="url(#glow)"/>
+    <path d="M512 270 a170 170 0 0 1 100 307 c-20 16 -30 36 -30 60 v20 h-140 v-20 c0 -24 -10 -44 -30 -60 A170 170 0 0 1 512 270 Z" fill="url(#light)" stroke="url(#light)" stroke-width="34" stroke-linejoin="round"/>
+    <g stroke="#D1D1D6" stroke-width="34" stroke-linecap="round"><line x1="452" y1="712" x2="572" y2="712"/><line x1="462" y1="752" x2="562" y2="752"/><line x1="487" y1="792" x2="537" y2="792"/></g>
+    <g stroke="url(#light)" stroke-width="34" stroke-linecap="round"><line x1="512" y1="160" x2="512" y2="200"/><line x1="305" y1="245" x2="333" y2="273"/><line x1="719" y1="245" x2="691" y2="273"/><line x1="222" y1="440" x2="262" y2="440"/><line x1="762" y1="440" x2="802" y2="440"/></g>
+  </g>
+</svg>
