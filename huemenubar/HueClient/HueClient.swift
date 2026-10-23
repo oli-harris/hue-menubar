@@ -181,7 +181,10 @@ final class HueClient {
             }
         }
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in await self?.refresh() }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(5)) // Wi-Fi is usually not back yet
+                await self?.refresh()
+            }
         }
     }
     
