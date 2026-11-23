@@ -14,8 +14,8 @@ extension HueClient {
         config.timeoutIntervalForRequest = 6
         config.timeoutIntervalForResource = 6
 
-        // Sessions retain their delegate until invalidated (no-op on .shared)
-        hueSession.finishTasksAndInvalidate()
+        // Sessions retain their delegate until invalidated (.shared must not be, it logs a complaint)
+        if hueSession !== URLSession.shared { hueSession.finishTasksAndInvalidate() }
         self.hueSession = URLSession(configuration: config, delegate: d, delegateQueue: nil)
     }
     
@@ -24,7 +24,7 @@ extension HueClient {
             UserDefaults.standard.removeObject(forKey: key)
         }
         
-        hueSession.finishTasksAndInvalidate()
+        if hueSession !== URLSession.shared { hueSession.finishTasksAndInvalidate() }
         hueSession = URLSession.shared
         hueDelegate = nil
         
