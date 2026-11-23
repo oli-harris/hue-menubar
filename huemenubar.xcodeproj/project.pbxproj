@@ -15,6 +15,9 @@
 		4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7472B0A57150033E029 /* Preview Assets.xcassets */; };
 		4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7532B0A89250033E029 /* SettingsView.swift */; };
 		4FA000012F100000003A8659 /* HueKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA000022F100000003A8659 /* HueKit */; };
+		4FB000012F200000003A8659 /* Entry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB000032F200000003A8659 /* Entry.swift */; };
+		4FB000022F200000003A8659 /* CLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB000042F200000003A8659 /* CLI.swift */; };
+		4FB000052F200000003A8659 /* hue in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FB000062F200000003A8659 /* hue */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,7 +31,24 @@
 		4F16F7492B0A57150033E029 /* huemenubar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = huemenubar.entitlements; sourceTree = "<group>"; };
 		4F16F7532B0A89250033E029 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4FA000032F100000003A8659 /* HueKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = HueKit; path = Packages/HueKit; sourceTree = "<group>"; };
+		4FB000032F200000003A8659 /* Entry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entry.swift; sourceTree = "<group>"; };
+		4FB000042F200000003A8659 /* CLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLI.swift; sourceTree = "<group>"; };
+		4FB000062F200000003A8659 /* hue */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = hue; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4FB000072F200000003A8659 /* Copy CLI wrapper */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				4FB000052F200000003A8659 /* hue in CopyFiles */,
+			);
+			name = "Copy CLI wrapper";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4F16F73A2B0A57140033E029 /* Frameworks */ = {
@@ -66,6 +86,9 @@
 				4F035C1B2B2DFAF800EAF3AB /* BridgeSettingsView.swift */,
 				4F16F7532B0A89250033E029 /* SettingsView.swift */,
 				4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */,
+				4FB000062F200000003A8659 /* hue */,
+				4FB000042F200000003A8659 /* CLI.swift */,
+				4FB000032F200000003A8659 /* Entry.swift */,
 				4F16F7422B0A57140033E029 /* HueScenesView.swift */,
 				4F16F7442B0A57150033E029 /* Assets.xcassets */,
 				4F16F7492B0A57150033E029 /* huemenubar.entitlements */,
@@ -92,6 +115,7 @@
 				4F16F7392B0A57140033E029 /* Sources */,
 				4F16F73A2B0A57140033E029 /* Frameworks */,
 				4F16F73B2B0A57140033E029 /* Resources */,
+				4FB000072F200000003A8659 /* Copy CLI wrapper */,
 			);
 			buildRules = (
 			);
@@ -163,6 +187,8 @@
 				4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */,
 				4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */,
 				4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */,
+				4FB000022F200000003A8659 /* CLI.swift in Sources */,
+				4FB000012F200000003A8659 /* Entry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
