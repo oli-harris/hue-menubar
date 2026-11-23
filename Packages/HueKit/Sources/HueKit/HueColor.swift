@@ -44,3 +44,22 @@ public struct HueRGB: Equatable, Sendable {
         return (HueXY(x: X / sum, y: Y / sum), brightness)
     }
 }
+
+extension HueRGB {
+    // Approximate inverse of xyBrightness at full brightness, for display
+    public init(xy: HueXY) {
+        let y = max(xy.y, 0.0001)
+        let (X, Y, Z) = (xy.x / y, 1.0, (1 - xy.x - xy.y) / y)
+        var c = [X * 1.656492 - Y * 0.354851 - Z * 0.255038,
+                 -X * 0.707196 + Y * 1.655397 + Z * 0.036152,
+                 X * 0.051713 - Y * 0.121364 + Z * 1.011530].map { max($0, 0) }
+        let peak = c.max() ?? 1
+        if peak > 0 { c = c.map { $0 / peak } }
+        c = c.map { $0 <= 0.0031308 ? 12.92 * $0 : 1.055 * pow($0, 1 / 2.4) - 0.055 }
+        self.init(r: c[0], g: c[1], b: c[2])
+    }
+    
+    public var hex: String {
+        String(format: "#%02x%02x%02x", Int((r * 255).rounded()), Int((g * 255).rounded()), Int((b * 255).rounded()))
+    }
+}
