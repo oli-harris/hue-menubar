@@ -13,11 +13,8 @@
 		4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7422B0A57140033E029 /* HueScenesView.swift */; };
 		4F16F7452B0A57150033E029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7442B0A57150033E029 /* Assets.xcassets */; };
 		4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F16F7472B0A57150033E029 /* Preview Assets.xcassets */; };
-		4F16F7502B0A59A50033E029 /* HueClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F74F2B0A59A50033E029 /* HueClient.swift */; };
 		4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F16F7532B0A89250033E029 /* SettingsView.swift */; };
-		4FCBB1002F088080003A8659 /* HueTrustDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */; };
-		4FCBB1032F088430003A8659 /* HueRootSecondary.cer in Resources */ = {isa = PBXBuildFile; fileRef = 4FCBB1022F088430003A8659 /* HueRootSecondary.cer */; };
-		4FCBB1042F088430003A8659 /* HueRootActive.cer in Resources */ = {isa = PBXBuildFile; fileRef = 4FCBB1012F088430003A8659 /* HueRootActive.cer */; };
+		4FA000012F100000003A8659 /* HueKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA000022F100000003A8659 /* HueKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,11 +26,8 @@
 		4F16F7442B0A57150033E029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F16F7472B0A57150033E029 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4F16F7492B0A57150033E029 /* huemenubar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = huemenubar.entitlements; sourceTree = "<group>"; };
-		4F16F74F2B0A59A50033E029 /* HueClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueClient.swift; sourceTree = "<group>"; };
 		4F16F7532B0A89250033E029 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HueTrustDelegate.swift; sourceTree = "<group>"; };
-		4FCBB1012F088430003A8659 /* HueRootActive.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = HueRootActive.cer; sourceTree = "<group>"; };
-		4FCBB1022F088430003A8659 /* HueRootSecondary.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = HueRootSecondary.cer; sourceTree = "<group>"; };
+		4FA000032F100000003A8659 /* HueKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = HueKit; path = Packages/HueKit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,24 +35,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA000012F100000003A8659 /* HueKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4F035C1A2B2DF6E600EAF3AB /* HueClient */ = {
-			isa = PBXGroup;
-			children = (
-				4FCBB0FF2F088080003A8659 /* HueTrustDelegate.swift */,
-				4F16F74F2B0A59A50033E029 /* HueClient.swift */,
-			);
-			path = HueClient;
-			sourceTree = "<group>";
-		};
 		4F16F7342B0A57140033E029 = {
 			isa = PBXGroup;
 			children = (
+				4FA000032F100000003A8659 /* HueKit */,
 				4F16F73F2B0A57140033E029 /* huemenubar */,
 				4F16F73E2B0A57140033E029 /* Products */,
 			);
@@ -77,15 +64,12 @@
 			children = (
 				4F035C1D2B2DFB1800EAF3AB /* ScenesSettingsView.swift */,
 				4F035C1B2B2DFAF800EAF3AB /* BridgeSettingsView.swift */,
-				4F035C1A2B2DF6E600EAF3AB /* HueClient */,
 				4F16F7532B0A89250033E029 /* SettingsView.swift */,
 				4F16F7402B0A57140033E029 /* HueMenuBarApp.swift */,
 				4F16F7422B0A57140033E029 /* HueScenesView.swift */,
 				4F16F7442B0A57150033E029 /* Assets.xcassets */,
 				4F16F7492B0A57150033E029 /* huemenubar.entitlements */,
 				4F16F7462B0A57150033E029 /* Preview Content */,
-				4FCBB1012F088430003A8659 /* HueRootActive.cer */,
-				4FCBB1022F088430003A8659 /* HueRootSecondary.cer */,
 			);
 			path = huemenubar;
 			sourceTree = "<group>";
@@ -114,6 +98,9 @@
 			dependencies = (
 			);
 			name = huemenubar;
+			packageProductDependencies = (
+				4FA000022F100000003A8659 /* HueKit */,
+			);
 			productName = huemenubar;
 			productReference = 4F16F73D2B0A57140033E029 /* huemenubar.app */;
 			productType = "com.apple.product-type.application";
@@ -145,6 +132,9 @@
 			productRefGroup = 4F16F73E2B0A57140033E029 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				4FA000042F100000003A8659 /* XCLocalSwiftPackageReference "Packages/HueKit" */,
+			);
 			targets = (
 				4F16F73C2B0A57140033E029 /* huemenubar */,
 			);
@@ -157,8 +147,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F16F7482B0A57150033E029 /* Preview Assets.xcassets in Resources */,
-				4FCBB1032F088430003A8659 /* HueRootSecondary.cer in Resources */,
-				4FCBB1042F088430003A8659 /* HueRootActive.cer in Resources */,
 				4F16F7452B0A57150033E029 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,12 +159,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F035C1E2B2DFB1800EAF3AB /* ScenesSettingsView.swift in Sources */,
-				4F16F7502B0A59A50033E029 /* HueClient.swift in Sources */,
 				4F035C1C2B2DFAF800EAF3AB /* BridgeSettingsView.swift in Sources */,
 				4F16F7542B0A89250033E029 /* SettingsView.swift in Sources */,
 				4F16F7432B0A57140033E029 /* HueScenesView.swift in Sources */,
 				4F16F7412B0A57140033E029 /* HueMenuBarApp.swift in Sources */,
-				4FCBB1002F088080003A8659 /* HueTrustDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +370,20 @@
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4FA000042F100000003A8659 /* XCLocalSwiftPackageReference "Packages/HueKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/HueKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4FA000022F100000003A8659 /* HueKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HueKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCConfigurationList section */
 		4F16F7382B0A57140033E029 /* Build configuration list for PBXProject "huemenubar" */ = {
