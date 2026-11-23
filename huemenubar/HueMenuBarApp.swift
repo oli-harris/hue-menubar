@@ -1,9 +1,11 @@
+import HueKit
 import SwiftUI
 
 // Menu content isn't rendered at launch, so first-launch setup is opened from here
 final class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor
     func applicationDidFinishLaunching(_ notification: Notification) {
+        HueClient.shared.startMonitoring()
         guard HueClient.shared.bridgeState != .paired else { return }
         NSApp.activate(ignoringOtherApps: true)
         NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)

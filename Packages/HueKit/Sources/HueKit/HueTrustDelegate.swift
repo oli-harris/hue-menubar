@@ -9,12 +9,12 @@ final class HueTrustDelegate: NSObject, URLSessionDelegate {
     init?(bridgeId: String) {
         self.bridgeId = bridgeId.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
 
-        // These must exist in your app bundle as DER .cer files
+        // DER .cer files in this package's Resources
         let names = ["HueRootActive", "HueRootSecondary"]
 
         var certs: [SecCertificate] = []
         for name in names {
-            guard let url = Bundle.main.url(forResource: name, withExtension: "cer"),
+            guard let url = Bundle.module.url(forResource: name, withExtension: "cer", subdirectory: "Resources"),
                   let data = try? Data(contentsOf: url),
                   let cert = SecCertificateCreateWithData(nil, data as CFData) else {
                 return nil
@@ -52,11 +52,11 @@ final class HueTrustDelegate: NSObject, URLSessionDelegate {
         }
 
         // 4) Manual identity check: leaf certificate CN must match bridgeId
-        guard let leaf = SecTrustGetCertificateAtIndex(trust, 0),
+        guard let leaf = (SecTrustCopyCertificateChain(trust) as? [SecCertificate])?.first,
               let cn = Self.commonName(of: leaf),
               cn.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() == bridgeId else {
             // Uncomment for debugging:
-            // let got = SecTrustGetCertificateAtIndex(trust, 0).flatMap(Self.commonName) ?? "nil"
+            // let got = (SecTrustCopyCertificateChain(trust) as? [SecCertificate])?.first.flatMap(Self.commonName) ?? "nil"
             // print("❌ Hue CN mismatch. Got:", got, "Expected:", bridgeId)
             completionHandler(.cancelAuthenticationChallenge, nil)
             return

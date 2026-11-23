@@ -1,4 +1,5 @@
 import ServiceManagement
+import HueKit
 import SwiftUI
 
 struct BridgeSettingsView: View {

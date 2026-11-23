@@ -1,5 +1,6 @@
 import os
 import ServiceManagement
+import HueKit
 import SwiftUI
 
 struct SettingsView: View {
