@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct HueMenuBarApp: App {
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
     let client = HueClient.shared
+    @AppStorage("hideWhenUnreachable") private var hideWhenUnreachable = false
     
     init() {
         // On by default, but only set once so turning it off sticks
@@ -25,7 +26,7 @@ struct HueMenuBarApp: App {
     
     var body: some Scene {
         // Simplified Menu Bar
-        MenuBarExtra() {
+        MenuBarExtra(isInserted: .constant(!(hideWhenUnreachable && client.connection == .unreachable))) {
             HueScenesView().environment(client)
         } label: {
             Image(systemName: "lightbulb.max.fill").symbolRenderingMode(.hierarchical)

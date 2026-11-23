@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import Network
 import os
 
 // API Types
@@ -168,6 +169,7 @@ final class HueClient {
     var lastRefresh: Date?
 
     private static let log = Logger(subsystem: "com.harris.huemenubar", category: "HueClient")
+    private let pathMonitor = NWPathMonitor()
 
     init() {
         bridgeIP = UserDefaults.standard.string(forKey: "hueBridgeIP") ?? ""
@@ -187,6 +189,11 @@ final class HueClient {
                 await self?.refresh()
             }
         }
+        // Re-check when the network changes so a hidden icon can come back (first callback is the current state)
+        pathMonitor.pathUpdateHandler = { [weak self] _ in
+            Task { @MainActor in await self?.refresh() }
+        }
+        pathMonitor.start(queue: .main)
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(5)) // Wi-Fi is usually not back yet
@@ -225,7 +232,7 @@ final class HueClient {
             fetchStatus = "Error: \(error.localizedDescription)"
             Self.log.error("Refresh failed: \(error)")
             // The router may have given the bridge a new IP; retry once at most
-            if rediscover, connection == .unreachable, await updateBridgeIP() {
+            if rediscover, connection == .unreachable, !UserDefaults.standard.bool(forKey: "localNetworkOnly"), await updateBridgeIP() {
                 await refresh(rediscover: false)
             }
         }

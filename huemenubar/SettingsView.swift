@@ -39,6 +39,8 @@ struct SettingsView: View {
 }
 
 struct GeneralSettingsView: View {
+    @AppStorage("localNetworkOnly") private var localNetworkOnly = false
+    @AppStorage("hideWhenUnreachable") private var hideWhenUnreachable = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     
     private static let log = Logger(subsystem: "com.harris.huemenubar", category: "Settings")
@@ -73,6 +75,15 @@ struct GeneralSettingsView: View {
                             launchAtLogin = SMAppService.mainApp.status == .enabled
                         }
                     ))
+                }
+                
+                Section {
+                    Toggle("Only use local network", isOn: $localNetworkOnly)
+                    Text("Never contact the internet to look up the bridge; only the saved local address is used.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Toggle("Hide menu icon when bridge is unreachable", isOn: $hideWhenUnreachable)
+                    Text("The icon returns automatically once the bridge can be reached again.")
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }.formStyle(.grouped)
         }
