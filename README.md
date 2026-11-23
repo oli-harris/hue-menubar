@@ -35,6 +35,39 @@
 
 On first launch, settings open on the **Bridge** tab. Follow the guided flow: the app finds your bridge, then asks you to press the button on top of it to pair. Once paired, your rooms and scenes appear in the menubar menu.
 
+## Command line
+
+The app includes a `hue` command. Link it into a folder on your `PATH`:
+
+```bash
+ln -sf /Applications/huemenubar.app/Contents/Resources/hue /opt/homebrew/bin/hue
+```
+
+or add the app's Resources folder to your `PATH` instead:
+
+```bash
+export PATH="/Applications/huemenubar.app/Contents/Resources:$PATH"
+```
+
+Settings > General has a button that copies the link command with the right path. The app must be paired first.
+
+```
+hue status [--json]                          bridge connection and lights on
+hue rooms [--json]                           rooms, state, active scene, scenes
+hue lights [--json]                          every light, including ones in no room
+hue alias <light|room> <name> | --clear      local nickname
+hue colours                                  CSS colour names and white keywords
+hue colour <light|room|all> <value> [%]      #rrggbb, #rgb, CSS name, 2700K or warm/cool/...
+hue on <light|room|all> [%]                  turn on, optionally at a brightness
+hue off <light|room|all>
+hue brightness <light|room|all> <0-100>
+hue temp <light|room|all> <kelvin|candle|warm|neutral|cool|daylight>
+hue scene <light|room> <scene>               a light only takes its own part of the scene
+hue help
+```
+
+Targets match by id or name, case-insensitive; quote names with spaces. Use `room:` or `light:` when a name is both, and `all` for every light. Mistyped names are never auto-corrected, only suggested. Exit codes: 0 ok, 1 failed, 2 not paired, 64 usage error.
+
 ## Build from source
 
 Requires Xcode with the macOS 14 SDK.

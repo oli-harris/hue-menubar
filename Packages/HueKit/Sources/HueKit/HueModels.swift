@@ -27,6 +27,8 @@ public struct HueRoom: Identifiable, Codable {
     public internal(set) var isOn = false
     public internal(set) var brightness: Double?    // Percent
     
+    public var displayName: String { name == bridgeName ? name : "\(name) (\(bridgeName))" }
+    
     // Scenes as edited in settings: enabled, nil as the divider, then disabled
     public var editorItems: [HueScene?] {
         scenes.map(Optional.some) + [nil] + disabledScenes.map(Optional.some)
@@ -45,6 +47,14 @@ public struct HueLight: Identifiable, Codable {
     public let supportsTemperature: Bool
     public let mirekMin: Int?                       // nil unless supportsTemperature
     public let mirekMax: Int?
+    
+    public var displayName: String { name == bridgeName ? name : "\(name) (\(bridgeName))" }
+    
+    // Current colour as a hex approximation, or the temperature in kelvin
+    public var colourSummary: String? {
+        if let mirek, mirek > 0, supportsTemperature { return "\(Int((1_000_000 / Double(mirek)).rounded()))K" }
+        return xy.map { HueRGB(xy: $0).hex }
+    }
     
     // What the bridge reports for every white-ambiance light, used for rooms and as a fallback
     static let defaultMirek = 153...500

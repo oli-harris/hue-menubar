@@ -86,6 +86,18 @@ struct GeneralSettingsView: View {
                     Text("The icon returns automatically once the bridge can be reached again.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                
+                Section {
+                    Button("Copy install command") {
+                        let helper = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/hue").path
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString("ln -sf '\(helper)' /opt/homebrew/bin/hue", forType: .string)
+                    }
+                    Text("Adds a hue command for the terminal. Paste the copied command into Terminal; any folder on your PATH works in place of /opt/homebrew/bin.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } header: {
+                    Text("Command line tool")
+                }
             }.formStyle(.grouped)
         }
     }

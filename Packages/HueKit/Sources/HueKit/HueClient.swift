@@ -200,16 +200,6 @@ public final class HueClient {
     }
     
     public func activateScene(scene: HueScene) async {
-        let body = try? JSONEncoder().encode(["recall": ["action": "active"]])
-        // Optimistic: show the checkmark before the bridge responds
-        let i = rooms.firstIndex(where: { $0.scenes.contains { $0.id == scene.id } })
-        let previous = i.flatMap { rooms[$0].activeSceneID }
-        if let i { rooms[i].activeSceneID = scene.id }
-        do {
-            _ = try await send("scene/\(scene.id)", method: "PUT", body: body)
-        } catch {
-            Self.log.error("Activating scene failed: \(error)")
-            if let i { rooms[i].activeSceneID = previous }
-        }
+        do { try await recallScene(scene) } catch { Self.log.error("Activating scene failed: \(error)") }
     }
 }

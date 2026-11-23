@@ -12,7 +12,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-@main
 struct HueMenuBarApp: App {
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
     let client = HueClient.shared

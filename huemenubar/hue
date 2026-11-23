@@ -1,0 +1,10 @@
+#!/bin/sh
+# Lets `hue` be a symlink anywhere on PATH: the app binary only finds its bundle, and so its
+# settings and pairing, when started by its real path.
+self=$(realpath "$0") || exit 1
+contents=$(dirname "$(dirname "$self")")
+[ $# -eq 0 ] && set -- help
+# Tells the app to act as the CLI even for a command it does not know
+HUE_CLI=1
+export HUE_CLI
+exec "$contents/MacOS/huemenubar" "$@"

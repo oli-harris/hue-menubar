@@ -13,6 +13,7 @@ public enum HueError: LocalizedError {
     case unsupported(String)
     case rejected(String)       // The bridge's own error description
     case notFound(String)
+    case invalid(String)        // Bad user input, the message says what
     
     public var errorDescription: String? {
         switch self {
@@ -22,6 +23,7 @@ public enum HueError: LocalizedError {
         case .unsupported(let what): "\(what)"
         case .rejected(let message): "The bridge rejected the request: \(message)"
         case .notFound(let what): "Not found: \(what)"
+        case .invalid(let message): message
         }
     }
 }
@@ -74,6 +76,20 @@ extension HueClient {
         }
         _ = try await send("light/\(light.id)", method: "PUT", body: try JSONEncoder().encode(action))
         apply(action, to: .light(light))
+    }
+    
+    // Like activateScene, but reports failure
+    public func recallScene(_ scene: HueScene) async throws {
+        let body = try JSONEncoder().encode(["recall": ["action": "active"]])
+        let i = rooms.firstIndex(where: { $0.scenes.contains { $0.id == scene.id } || $0.disabledScenes.contains { $0.id == scene.id } })
+        let previous = i.flatMap { rooms[$0].activeSceneID }
+        if let i { rooms[i].activeSceneID = scene.id }
+        do {
+            _ = try await send("scene/\(scene.id)", method: "PUT", body: body)
+        } catch {
+            if let i { rooms[i].activeSceneID = previous }
+            throw error
+        }
     }
     
     public func turnOffRoom(room: HueRoom) async {
