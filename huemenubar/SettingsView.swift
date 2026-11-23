@@ -89,11 +89,11 @@ struct GeneralSettingsView: View {
                 
                 Section {
                     Button("Copy install command") {
-                        let helper = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/hue").path
+                        let folder = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources").path
                         NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString("ln -sf '\(helper)' /opt/homebrew/bin/hue", forType: .string)
+                        NSPasteboard.general.setString("echo 'export PATH=\"\(folder):$PATH\"' >> ~/.zshrc", forType: .string)
                     }
-                    Text("Adds a hue command for the terminal. Paste the copied command into Terminal; any folder on your PATH works in place of /opt/homebrew/bin.")
+                    Text("Adds a hue command for the terminal by putting the app's folder on your PATH. Paste the copied command into Terminal, then open a new Terminal window.")
                         .font(.caption).foregroundStyle(.secondary)
                 } header: {
                     Text("Command line tool")
