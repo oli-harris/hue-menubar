@@ -33,7 +33,7 @@ struct HueScenesView: View {
             Button("Set Up Hue Bridge…", action: showSettings)
         } else {
             ForEach(Array(client.rooms.enumerated()).filter { !$0.element.scenes.isEmpty }, id: \.element.id) { roomIndex, room in
-                Text(room.roomName)
+                Text(room.name)
                 // Toggles render as checkmark items in an NSMenu
                 ForEach(Array(room.scenes.enumerated()), id: \.element.id) { sceneIndex, scene in
                     let number = offsets[roomIndex] + sceneIndex + 1

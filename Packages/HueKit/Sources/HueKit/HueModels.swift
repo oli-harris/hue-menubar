@@ -17,15 +17,63 @@ public enum HueConnection: String {
 
 public struct HueRoom: Identifiable, Codable {
     public let id: String
-    let groupedLightId: String
-    public let roomName: String
-    public internal(set) var scenes: [HueScene]                  // Enabled, in menu order
+    public let groupedLightId: String
+    public internal(set) var name: String           // The local alias when set, else bridgeName
+    public let bridgeName: String
+    public internal(set) var scenes: [HueScene]     // Enabled, in menu order
     public internal(set) var disabledScenes: [HueScene] = []
     public internal(set) var activeSceneID: String?
+    public internal(set) var lights: [HueLight] = []
+    public internal(set) var isOn = false
+    public internal(set) var brightness: Double?    // Percent
     
     // Scenes as edited in settings: enabled, nil as the divider, then disabled
     public var editorItems: [HueScene?] {
         scenes.map(Optional.some) + [nil] + disabledScenes.map(Optional.some)
+    }
+}
+
+public struct HueLight: Identifiable, Codable {
+    public let id: String
+    public internal(set) var name: String           // The local alias when set, else bridgeName
+    public let bridgeName: String
+    public internal(set) var isOn: Bool
+    public internal(set) var brightness: Double?    // Percent, nil when the light can't dim
+    public internal(set) var xy: HueXY?             // Current colour, nil unless supportsColor
+    public internal(set) var mirek: Int?            // Current colour temperature, nil in colour mode
+    public let supportsColor: Bool
+    public let supportsTemperature: Bool
+    public let mirekMin: Int?                       // nil unless supportsTemperature
+    public let mirekMax: Int?
+    
+    // What the bridge reports for every white-ambiance light, used for rooms and as a fallback
+    static let defaultMirek = 153...500
+    
+    var mirekRange: ClosedRange<Int> {
+        if let mirekMin, let mirekMax { return mirekMin...mirekMax }
+        return Self.defaultMirek
+    }
+    
+    init(_ api: LightAPI, aliases: [String: String]) {
+        id = api.id
+        bridgeName = api.metadata.name
+        name = aliases[api.id] ?? api.metadata.name
+        isOn = api.on?.on ?? false
+        brightness = api.dimming?.brightness
+        xy = api.color?.xy
+        mirek = api.color_temperature?.mirek
+        supportsColor = api.color != nil
+        supportsTemperature = api.color_temperature != nil
+        mirekMin = api.color_temperature?.mirek_schema?.mirek_minimum
+        mirekMax = api.color_temperature?.mirek_schema?.mirek_maximum
+    }
+    
+    // Mirrors what the bridge will do with a PUT, so state is current without a refresh
+    mutating func apply(_ update: LightUpdate) {
+        if let on = update.on?.on { isOn = on }
+        if let b = update.dimming?.brightness, brightness != nil { brightness = b }
+        if let c = update.color?.xy, supportsColor { xy = c }
+        if let m = update.color_temperature?.mirek, supportsTemperature { mirek = min(max(m, mirekRange.lowerBound), mirekRange.upperBound) }
     }
 }
 
@@ -58,4 +106,33 @@ struct StoredOrder: Codable {
             return room
         }
     }
+}
+
+// Builds the room list from decoded bridge resources. A light belongs to a room when its owner device
+// is one of the room's device children; lights in no room come back as `unassigned`.
+func assemble(rooms: [RoomAPI], scenes: [SceneAPI], lights: [LightAPI], groups: [GroupedLightAPI], aliases: [String: String]) -> (rooms: [HueRoom], unassigned: [HueLight]) {
+    var placed = Set<String>()
+    let built = rooms.map { room -> HueRoom in
+        let devices = Set(room.children.filter { $0.rtype == "device" }.map(\.rid))
+        let roomLights = lights.filter { devices.contains($0.owner.rid) }.map { HueLight($0, aliases: aliases) }
+        placed.formUnion(roomLights.map(\.id))
+        
+        let groupedLightId = room.services.first { $0.rtype == "grouped_light" }?.rid ?? ""
+        let group = groups.first { $0.id == groupedLightId }
+        return HueRoom(
+            id: room.id,
+            groupedLightId: groupedLightId,
+            name: aliases[room.id] ?? room.metadata.name,
+            bridgeName: room.metadata.name,
+            scenes: scenes
+                .filter { $0.group.rid == room.id }
+                .map { HueScene(id: $0.id, name: $0.metadata.name) },
+            activeSceneID: scenes.first { $0.group.rid == room.id && $0.status?.active.map { $0 != "inactive" } == true }?.id,
+            lights: roomLights,
+            isOn: group?.on?.on ?? roomLights.contains { $0.isOn },
+            brightness: group?.dimming?.brightness
+        )
+    }
+    let unassigned = lights.filter { !placed.contains($0.id) }.map { HueLight($0, aliases: aliases) }
+    return (built, unassigned)
 }

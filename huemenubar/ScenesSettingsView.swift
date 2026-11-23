@@ -19,7 +19,7 @@ struct ScenesSettingsView: View {
                         caption("Rooms")
                         List(selection: $selectedRoomID) {
                             ForEach(client.rooms) { room in
-                                Text(room.roomName).tag(room.id)
+                                Text(room.name).tag(room.id)
                             }
                             .onMove { client.moveRoom(from: $0, to: $1) }
                         }
@@ -28,7 +28,7 @@ struct ScenesSettingsView: View {
 
                     if let room = client.rooms.first(where: { $0.id == selectedRoomID }) ?? client.rooms.first {
                         VStack(alignment: .leading) {
-                            caption("Scenes in \(room.roomName)")
+                            caption("Scenes in \(room.name)")
                             sceneList(room)
                         }
                     }

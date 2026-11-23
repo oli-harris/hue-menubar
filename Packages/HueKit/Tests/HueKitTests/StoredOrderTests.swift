@@ -2,7 +2,7 @@ import Testing
 @testable import HueKit
 
 private func room(_ id: String, scenes: [String] = [], disabled: [String] = []) -> HueRoom {
-    HueRoom(id: id, groupedLightId: "", roomName: id,
+    HueRoom(id: id, groupedLightId: "", name: id, bridgeName: id,
             scenes: scenes.map { HueScene(id: $0, name: $0) },
             disabledScenes: disabled.map { HueScene(id: $0, name: $0) })
 }

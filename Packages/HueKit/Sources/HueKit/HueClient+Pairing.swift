@@ -32,6 +32,9 @@ extension HueClient {
         bridgeID = ""
         username = ""
         rooms = []
+        unassignedLights = []
+        allGroupedLightId = nil
+        sceneActions = [:]
         lastRefresh = nil
         bridgeStatus = ""
         fetchStatus = ""
