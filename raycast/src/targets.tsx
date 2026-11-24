@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Color, Icon, List, openExtensionPreferences } from "@raycast/api";
 import { execFile } from "node:child_process";
 import type { ReactElement } from "react";
+import { ColourGrid } from "./colour-grid";
 import { SceneList } from "./scene-list";
 import { APP_BUNDLE_ID, run, useHue, useTarget } from "./hue";
 import type { Target } from "./types";
@@ -20,6 +21,7 @@ function targetActions(target: Target, revalidate: () => void) {
     element: <Action.Push key={key} title={title} icon={icon} target={page} />,
   });
   return [
+    push("colour", "Set colour", Icon.Brush, <ColourGrid targetId={target.id} />),
     ...(target.kind === "all" ? [] : [push("scene", "Set scene", Icon.Wand, <SceneList targetId={target.id} />)]),
     make("on", "Turn on", Icon.LightBulb, () => run(["on", target.id], `${target.name} on`, revalidate)),
     make("off", "Turn off", Icon.LightBulbOff, () => run(["off", target.id], `${target.name} off`, revalidate)),
