@@ -2,7 +2,7 @@
 // - scene grid: the selected scene tile (saved under scene-glow/), plus a glow around the tile;
 // - light/room lists: the selected row's room colours (room-glow/), toned down;
 // - colour and brightness grids: the selected swatch's colour, toned down, and dimmer with lower brightness.
-// Root search and other extensions are left alone. Two layers crossfade so changes animate.
+// Root search and other extensions are left alone. Two layers crossfade (images are decoded first) so changes animate without flicker.
 (() => {
   const OURS = "hue-menubar";
   // svg/<room or "all">~<glowHash>~<iconHash>.svg, with the slash possibly URL-encoded
@@ -52,22 +52,35 @@
     return roomGlow && roomGlow !== img.src ? { mode: "soft", image: roomGlow } : null;
   }
 
-  function update() {
+  let token = 0;
+
+  async function update() {
     const g = pick();
     const key = g && `${g.mode} ${g.image ?? g.color} ${g.strength ?? 1}`;
     if (key === last && g?.tile === lastTile) return;
     last = key;
     lastTile = g?.tile;
+    const mine = ++token;
 
     document.querySelectorAll(".hue-glow-tile").forEach((e) => e.classList.remove("hue-glow-tile"));
     if (g?.tile) {
       g.tile.classList.add("hue-glow-tile");
       g.tile.style.setProperty("--hue-glow-image", `url("${g.image}")`);
     }
+    if (!g) return layers.forEach((l) => l.classList.remove("on"));
 
-    // Fade the old layer out and the new one in
-    layers[front].classList.remove("on");
-    if (!g) return;
+    // Have the next image decoded before fading it in; a newer selection makes this one stale
+    if (g.image) {
+      try {
+        const img = new Image();
+        img.src = g.image;
+        await img.decode();
+      } catch {}
+      if (mine !== token) return;
+    }
+
+    // Crossfade: the old layer fades out while the new one fades in
+    const previous = layers[front];
     front = 1 - front;
     const next = layers[front];
     next.className = `hue-glow-layer hue-glow-${g.mode}`;
@@ -75,7 +88,11 @@
     next.style.setProperty("--hue-glow-color", g.color ?? "transparent");
     next.style.setProperty("--hue-glow-strength", g.strength ?? 1);
     layers.forEach((l) => l.isConnected || document.body.appendChild(l));
-    requestAnimationFrame(() => next.classList.add("on"));
+    requestAnimationFrame(() => {
+      if (mine !== token) return;
+      next.classList.add("on");
+      previous.classList.remove("on");
+    });
   }
 
   new MutationObserver(update).observe(document.documentElement, {
