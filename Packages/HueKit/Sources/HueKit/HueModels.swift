@@ -26,6 +26,7 @@ public struct HueRoom: Identifiable, Codable {
     public internal(set) var lights: [HueLight] = []
     public internal(set) var isOn = false
     public internal(set) var brightness: Double?    // Percent
+    public internal(set) var type: String? = nil                      // The bridge's room archetype, e.g. "bedroom"
     
     public var displayName: String { name == bridgeName ? name : "\(name) (\(bridgeName))" }
     
@@ -39,6 +40,7 @@ public struct HueLight: Identifiable, Codable {
     public let id: String
     public internal(set) var name: String           // The local alias when set, else bridgeName
     public let bridgeName: String
+    public let type: String?                        // The bridge's light archetype, e.g. "floor_shade"
     public internal(set) var isOn: Bool
     public internal(set) var brightness: Double?    // Percent, nil when the light can't dim
     public internal(set) var xy: HueXY?             // Current colour, nil unless supportsColor
@@ -68,6 +70,7 @@ public struct HueLight: Identifiable, Codable {
     init(_ api: LightAPI, aliases: [String: String]) {
         id = api.id
         bridgeName = api.metadata.name
+        type = api.metadata.archetype
         name = aliases[api.id] ?? api.metadata.name
         isOn = api.on?.on ?? false
         brightness = api.dimming?.brightness
@@ -159,7 +162,8 @@ func assemble(rooms: [RoomAPI], scenes: [SceneAPI], lights: [LightAPI], groups: 
             activeSceneID: scenes.first { $0.group.rid == room.id && $0.status?.active.map { $0 != "inactive" } == true }?.id,
             lights: roomLights,
             isOn: group?.on?.on ?? roomLights.contains { $0.isOn },
-            brightness: group?.dimming?.brightness
+            brightness: group?.dimming?.brightness,
+            type: room.metadata.archetype
         )
     }
     let unassigned = lights.filter { !placed.contains($0.id) }.map { HueLight($0, aliases: aliases) }
