@@ -7,12 +7,12 @@ import { GREY, lightIconSvg, roomIconSvg } from "./svg";
 import { svgFile } from "./svg-files";
 import type { Target } from "./types";
 
-function targetIcon(t: Target) {
+export function targetIcon(t: Target) {
   const colour = t.isOn ? (t.colour ?? "#ffd5b3") : GREY;
   return { source: svgFile(t.kind === "light" ? lightIconSvg(t.type, colour) : roomIconSvg(t.type, colour)) };
 }
 
-function SetupView({ kind, message, retry }: { kind: string; message: string; retry: () => void }) {
+export function SetupView({ kind, message, retry }: { kind: string; message: string; retry: () => void }) {
   return (
     <List>
       <List.EmptyView

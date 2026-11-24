@@ -33,10 +33,10 @@ export function glowSvg(colour: string, level: number): string {
   );
 }
 
-// The average of some colours, darkened a little, as the base the glow sits on
+// The average of some colours: the base that fills the whole tile, so no edge fades out
 function baseColour(colours: string[]): string {
   const sum = colours.map(hexToRgb).reduce((a, c) => [a[0] + c[0], a[1] + c[1], a[2] + c[2]], [0, 0, 0]);
-  const [r, g, b] = sum.map((v) => (v / colours.length) * 0.55);
+  const [r, g, b] = sum.map((v) => v / colours.length);
   return rgbToHex(r, g, b);
 }
 
@@ -46,11 +46,11 @@ export function meshSvg(colours: string[]): string {
   const blobs = list.map((c, i) => {
     const x = 75 + 28 * Math.cos(i * 2.4 + 0.6);
     const y = 50 + 18 * Math.sin(i * 2.4 + 0.6);
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="42" fill="${c}"/>`;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="50" fill="${c}"/>`;
   });
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100"><defs><clipPath id="c"><rect width="150" height="100" rx="14"/></clipPath>` +
-    `<filter id="b" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="30"/></filter></defs>` +
+    `<filter id="b" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="26" edgeMode="duplicate"/></filter></defs>` +
     `<g clip-path="url(#c)"><rect width="150" height="100" fill="${baseColour(list)}"/><g filter="url(#b)">${blobs.join("")}</g></g></svg>`
   );
 }

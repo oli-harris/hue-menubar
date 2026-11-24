@@ -5,10 +5,8 @@ import {
   hsvToHex,
   parseColourQuery,
   parsePercent,
-  previewFileName,
-  previewSvg,
   exactColour,
-  nearestColourName,
+  colourName,
   saturationPercent,
   stepBrightness,
 } from "./lib";
@@ -33,23 +31,25 @@ test("parsePercent", () => {
   for (const bad of ["101", "-1", "abc", "", "4.5"]) assert.equal(parsePercent(bad), undefined);
 });
 
-test("previewSvg is stable and keyed by colours", () => {
-  assert.equal(previewSvg(["#ff0000", "#0000ff"]).match(/<rect x/g)?.length, 2);
-  assert.equal(previewFileName(["#ff0000"]), previewFileName(["#ff0000"]));
-  assert.notEqual(previewFileName(["#ff0000"]), previewFileName(["#00ff00"]));
-  assert.match(previewSvg([]), /#6b6b6b/);
-});
-
 test("exactColour turns off contrast adjustment", () => {
   assert.deepEqual(exactColour("#ffb3b3"), { light: "#ffb3b3", dark: "#ffb3b3", adjustContrast: false });
 });
 
-test("saturationPercent and nearestColourName", () => {
+test("saturationPercent", () => {
   assert.equal(saturationPercent("#ffffff"), 0);
   assert.equal(saturationPercent("#ff0000"), 100);
   assert.equal(saturationPercent(hsvToHex(0, 0.25, 1)), 25);
-  assert.equal(nearestColourName("#ff0000"), "red");
-  assert.equal(nearestColourName("#ff8000"), "darkorange");
+});
+
+test("colourName uses plain hue names, even for pale tints", () => {
+  const names = [0, 30, 55, 120, 175, 215, 270, 320].map((h) => colourName(hsvToHex(h, 1, 1)));
+  assert.deepEqual(names, ["Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Purple", "Pink"]);
+  assert.equal(colourName(hsvToHex(215, 0.25, 1)), "Blue");
+  assert.equal(colourName(hsvToHex(330, 0.5, 1)), "Pink");
+  assert.equal(colourName(hsvToHex(350, 1, 1)), "Red");
+  assert.equal(colourName("#ffffff"), "White");
+  assert.equal(colourName("#808080"), "Grey");
+  assert.equal(colourName("#404040"), "Grey");
 });
 
 test("stepBrightness steps by 10 and clamps", () => {

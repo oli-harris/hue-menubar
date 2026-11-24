@@ -70,7 +70,7 @@ Targets match by id or name, case-insensitive; quote names with spaces. Use `roo
 
 ## Raycast
 
-A [Raycast](https://raycast.com) extension in `raycast/` wraps the command line tool with commands for Lights, Set Scene, Set Colour, Set Brightness and turning lights on or off. It needs Node and the Hue Menubar app, which it finds at `/Applications/huemenubar.app` (change it in the extension's preferences).
+A [Raycast](https://raycast.com) extension in `raycast/` wraps the command line tool with commands for Control Lights, Set Scene, Set Colour, Set Brightness and Turn on Room / Turn off Room. It needs Node and the Hue Menubar app, which it finds at `/Applications/huemenubar.app` (change it in the extension's preferences).
 
 ```bash
 cd raycast && npm install && npm run dev

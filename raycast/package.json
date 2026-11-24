@@ -53,17 +53,17 @@
       "mode": "view"
     },
     {
-      "name": "turn-on",
-      "title": "Turn on Lights",
+      "name": "turn-on-room",
+      "title": "Turn on Room",
       "subtitle": "Hue",
-      "description": "Turn a light, room or all lights on.",
+      "description": "Turn a room on, straight away if you only have one.",
       "mode": "view"
     },
     {
-      "name": "turn-off",
-      "title": "Turn off Lights",
+      "name": "turn-off-room",
+      "title": "Turn off Room",
       "subtitle": "Hue",
-      "description": "Turn a light, room or all lights off.",
+      "description": "Turn a room off, straight away if you only have one.",
       "mode": "view"
     }
   ],

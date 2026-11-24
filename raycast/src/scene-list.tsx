@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
+import { Action, ActionPanel, Color, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
 import { run, useHue, useTarget } from "./hue";
 import { meshSvg } from "./svg";
@@ -24,7 +24,11 @@ export function SceneList({ targetId }: { targetId: string }) {
     <Grid.Item
       key={scene.id}
       title={scene.name}
-      subtitle={scene.id === room.activeSceneID ? "✓ Active" : undefined}
+      accessory={
+        scene.id === room.activeSceneID
+          ? { icon: { source: Icon.CircleFilled, tintColor: Color.Green }, tooltip: "Active" }
+          : undefined
+      }
       content={{ source: svgFile(meshSvg(scene.colours)) }}
       actions={
         <ActionPanel>
@@ -47,7 +51,7 @@ export function SceneList({ targetId }: { targetId: string }) {
   );
 
   return (
-    <Grid columns={3} aspectRatio="3/2" navigationTitle={`${target.name} Scenes`} searchBarPlaceholder="Search scenes">
+    <Grid columns={6} aspectRatio="3/2" navigationTitle={`${target.name} Scenes`} searchBarPlaceholder="Search scenes">
       <Grid.Section title={room.name}>{room.scenes.map(item)}</Grid.Section>
       {showHidden && <Grid.Section title="Hidden">{room.disabledScenes.map(item)}</Grid.Section>}
     </Grid>

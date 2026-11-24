@@ -57,22 +57,28 @@ export function useTarget(id: string): Target | undefined {
   );
 }
 
-// Runs a command with a toast, then refreshes the shown state. Pass ids, never names.
-export async function run(args: string[], successTitle: string, revalidate?: () => void) {
-  const toast = await showToast({ style: Toast.Style.Animated, title: "Working…" });
-  await new Promise<void>((resolve) => {
+// Runs a CLI command, rejecting with a HueError. Pass ids, never names.
+export function exec(args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
     execFile(hueBinary(), args, { timeout: 30000 }, (error, _stdout, stderr) => {
-      if (error) {
-        const e = toError({ error, exitCode: typeof error.code === "number" ? error.code : null, stderr });
-        toast.style = Toast.Style.Failure;
-        toast.title = e.kind === "unpaired" ? e.message : "Hue failed";
-        toast.message = e.kind === "unpaired" ? undefined : e.message;
-      } else {
-        toast.style = Toast.Style.Success;
-        toast.title = successTitle;
-        revalidate?.();
-      }
-      resolve();
+      if (!error) return resolve();
+      reject(toError({ error, exitCode: typeof error.code === "number" ? error.code : null, stderr }));
     });
   });
+}
+
+// Runs a command with a toast, then refreshes the shown state
+export async function run(args: string[], successTitle: string, revalidate?: () => void) {
+  const toast = await showToast({ style: Toast.Style.Animated, title: "Working…" });
+  try {
+    await exec(args);
+    toast.style = Toast.Style.Success;
+    toast.title = successTitle;
+    revalidate?.();
+  } catch (e) {
+    const error = e as HueError;
+    toast.style = Toast.Style.Failure;
+    toast.title = error.kind === "unpaired" ? error.message : "Hue failed";
+    toast.message = error.kind === "unpaired" ? undefined : error.message;
+  }
 }

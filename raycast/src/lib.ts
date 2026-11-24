@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { CSS_COLOURS } from "./css-colours";
 import type { HueData, HueLight, HueRoom, Target } from "./types";
 
@@ -117,34 +116,30 @@ export function saturationPercent(hex: string): number {
   return max === 0 ? 0 : Math.round(((max - Math.min(r, g, b)) / max) * 100);
 }
 
-export function nearestColourName(hex: string): string {
+// A plain name for a colour's hue, so pale tints still read as their colour
+const HUE_NAMES: [number, string][] = [
+  [15, "Red"],
+  [45, "Orange"],
+  [70, "Yellow"],
+  [165, "Green"],
+  [195, "Teal"],
+  [255, "Blue"],
+  [300, "Purple"],
+  [345, "Pink"],
+];
+
+export function colourName(hex: string): string {
   const [r, g, b] = hexToRgb(hex);
-  let best = "";
-  let bestDistance = Infinity;
-  for (const [name, value] of Object.entries(CSS_COLOURS)) {
-    const [r2, g2, b2] = hexToRgb(value);
-    const d = (r - r2) ** 2 + (g - g2) ** 2 + (b - b2) ** 2;
-    if (d < bestDistance) [best, bestDistance] = [name, d];
-  }
-  return best;
+  const max = Math.max(r, g, b);
+  const delta = max - Math.min(r, g, b);
+  if (delta === 0) return max > 200 ? "White" : max > 0 ? "Grey" : "Black";
+  const h = max === r ? ((g - b) / delta + 6) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+  const degrees = h * 60;
+  return HUE_NAMES.find(([limit]) => degrees < limit)?.[1] ?? "Red";
 }
 
 // Next brightness one step (10%) up or down; up from off starts at 10%, 0 means off
 export function stepBrightness(brightness: number | undefined, isOn: boolean, direction: 1 | -1): number {
   const current = isOn ? Math.round(brightness ?? 100) : 0;
   return Math.min(Math.max(current + direction * 10, 0), 100);
-}
-
-// Stripes of a scene's colours, a neutral grey when it has none
-export function previewSvg(colours: string[]): string {
-  const list = colours.length ? colours : ["#6b6b6b"];
-  const width = 100 / list.length;
-  const stripes = list
-    .map((c, i) => `<rect x="${i * width}" y="0" width="${width + 0.5}" height="100" fill="${c}"/>`)
-    .join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><clipPath id="c"><rect width="100" height="100" rx="18"/></clipPath><g clip-path="url(#c)">${stripes}</g></svg>`;
-}
-
-export function previewFileName(colours: string[]): string {
-  return `scene-${createHash("sha1").update(colours.join(",")).digest("hex").slice(0, 12)}.svg`;
 }

@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
 import { run, useHue, useTarget } from "./hue";
-import { WHITES, exactColour, hsvToHex, nearestColourName, parseColourQuery, saturationPercent } from "./lib";
+import { WHITES, exactColour, hsvToHex, colourName, parseColourQuery, saturationPercent } from "./lib";
 
 // 8 columns is the most a Grid allows: eight hues, pale to full saturation downwards
 const HUES = [0, 30, 55, 120, 175, 215, 270, 320];
@@ -11,8 +11,8 @@ const SATURATIONS = [0.25, 0.5, 0.75, 1];
 function describe(id: string | null, typed?: { hex: string; label: string }): string | undefined {
   const [kind, a, b] = (id ?? "").split("-");
   if (kind === "white") return WHITES.find((w) => String(w.kelvin) === a)?.name + ` · ${a}K`;
-  if (kind === "hsv") return `${nearestColourName(hsvToHex(Number(a), 1, 1))} · ${Math.round(Number(b) * 100)}%`;
-  if (kind === "typed" && typed) return `${typed.label} · ${saturationPercent(typed.hex)}%`;
+  if (kind === "hsv") return `${colourName(hsvToHex(Number(a), 1, 1))} · ${Math.round(Number(b) * 100)}%`;
+  if (kind === "typed" && typed) return `${colourName(typed.hex)} · ${saturationPercent(typed.hex)}%`;
   return undefined;
 }
 

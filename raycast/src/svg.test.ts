@@ -73,6 +73,12 @@ test("glow intensity follows brightness", () => {
   assert.equal(opacity(glowSvg("#ffcc00", 100)), 1);
 });
 
+test("mesh is based on the average colour, filling the tile", () => {
+  const svg = meshSvg(["#ff0000", "#0000ff"]);
+  assert.ok(svg.includes('<rect width="150" height="100" fill="#800080"/>'));
+  assert.ok(svg.includes('edgeMode="duplicate"'));
+});
+
 test("mesh uses every colour", () => {
   const svg = meshSvg(["#ff0000", "#00ff00", "#0000ff"]);
   for (const c of ["#ff0000", "#00ff00", "#0000ff"]) assert.ok(svg.includes(c));
