@@ -67,10 +67,11 @@ export function TargetList(props: {
     <List.Item
       key={t.id}
       id={t.id}
-      title={t.isOn && t.brightness !== undefined ? `${name} · ${Math.round(t.brightness)}%` : name}
+      title={name}
       icon={targetIcon(t)}
       keywords={[t.room?.name ?? t.name]}
       accessories={[
+        ...(t.isOn && t.brightness !== undefined ? [{ text: `${Math.round(t.brightness)}%` }] : []),
         { tag: t.isOn ? { value: "On", color: Color.Green } : { value: "Off", color: Color.SecondaryText } },
       ]}
       actions={
