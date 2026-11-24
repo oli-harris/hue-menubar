@@ -11,10 +11,13 @@ export interface TargetAction {
   key: string;
   title: string;
   icon: Icon;
+  label: string; // The shortcut as shown in menus
   element: ReactElement;
 }
 
 const shortcut = (key: Keyboard.KeyEquivalent): Keyboard.Shortcut => ({ modifiers: ["cmd", "shift"], key });
+const GLYPHS: Record<string, string> = { return: "↩", delete: "⌫", arrowUp: "↑", arrowDown: "↓" };
+const label = (key: string) => `⌘⇧${GLYPHS[key] ?? key.toUpperCase()}`;
 
 // Everything a user can do to a target, in menu order, with the same shortcuts everywhere
 export function targetActions(target: Target, revalidate: () => void): TargetAction[] {
@@ -22,12 +25,14 @@ export function targetActions(target: Target, revalidate: () => void): TargetAct
     key,
     title,
     icon,
+    label: label(k),
     element: <Action.Push key={key} title={title} icon={icon} shortcut={shortcut(k)} target={page} />,
   });
   const make = (key: string, title: string, icon: Icon, k: Keyboard.KeyEquivalent, args: string[], done: string) => ({
     key,
     title,
     icon,
+    label: label(k),
     element: (
       <Action key={key} title={title} icon={icon} shortcut={shortcut(k)} onAction={() => run(args, done, revalidate)} />
     ),

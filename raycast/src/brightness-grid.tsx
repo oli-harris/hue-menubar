@@ -1,13 +1,12 @@
 import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
-import { run, useHue, useTarget } from "./hue";
+import { run, useTarget } from "./hue";
 import { dimColour, exactColour, parsePercent } from "./lib";
 
 const LEVELS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 export function BrightnessGrid({ targetId }: { targetId: string }) {
-  const target = useTarget(targetId);
-  const { revalidate } = useHue();
+  const { target, revalidate } = useTarget(targetId);
   const [search, setSearch] = useState("");
   if (!target) return <Grid />;
 

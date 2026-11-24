@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
-import { run, useHue, useTarget } from "./hue";
+import { run, useTarget } from "./hue";
 import { WHITES, exactColour, hsvToHex, colourName, parseColourQuery, saturationPercent } from "./lib";
 
 // 8 columns is the most a Grid allows: eight hues, pale to full saturation downwards
@@ -17,8 +17,7 @@ function describe(id: string | null, typed?: { hex: string; label: string }): st
 }
 
 export function ColourGrid({ targetId }: { targetId: string }) {
-  const target = useTarget(targetId);
-  const { revalidate } = useHue();
+  const { target, revalidate } = useTarget(targetId);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   if (!target) return <Grid />;

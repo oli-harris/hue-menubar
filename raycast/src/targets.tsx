@@ -2,8 +2,8 @@ import { Action, ActionPanel, Color, Icon, List, openExtensionPreferences } from
 import { execFile } from "node:child_process";
 import type { ReactElement } from "react";
 import { targetActions } from "./actions";
-import { APP_BUNDLE_ID, useHue, useTarget } from "./hue";
 import { basename } from "node:path";
+import { APP_BUNDLE_ID, useHue, useTarget } from "./hue";
 import { GREY, lightIconSvg, meshSvg, roomIconSvg } from "./svg";
 import { svgFile } from "./svg-files";
 import type { Target } from "./types";
@@ -19,7 +19,7 @@ function roomGlowPrefix(t: Target): string {
 }
 
 export function targetIcon(t: Target) {
-  const colour = t.isOn ? (t.colour ?? "#ffd5b3") : GREY;
+  const colour = t.isOn && t.colour ? t.colour : GREY; // Grey until the colour is known
   const svg = t.kind === "light" ? lightIconSvg(t.type, colour) : roomIconSvg(t.type, colour);
   return { source: svgFile(svg, "svg", roomGlowPrefix(t)) };
 }
@@ -63,16 +63,15 @@ export function TargetList(props: {
     return <SetupView kind={error.kind} message={error.message} retry={revalidate} />;
   }
 
-  const item = (t: Target, title: string) => (
+  const item = (t: Target, name: string) => (
     <List.Item
       key={t.id}
       id={t.id}
-      title={title}
+      title={t.isOn && t.brightness !== undefined ? `${name} · ${Math.round(t.brightness)}%` : name}
       icon={targetIcon(t)}
       keywords={[t.room?.name ?? t.name]}
       accessories={[
         { tag: t.isOn ? { value: "On", color: Color.Green } : { value: "Off", color: Color.SecondaryText } },
-        ...(t.isOn && t.brightness !== undefined ? [{ text: `${Math.round(t.brightness)}%` }] : []),
       ]}
       actions={
         <ActionPanel>
@@ -99,8 +98,7 @@ export function TargetList(props: {
 
 // Enter on a target in Control Lights: a plain list of what can be done with it
 export function TargetMenu({ targetId }: { targetId: string }) {
-  const target = useTarget(targetId);
-  const { revalidate } = useHue();
+  const { target, revalidate } = useTarget(targetId);
   if (!target) return <List />;
   const actions = targetActions(target, revalidate);
   return (
@@ -112,6 +110,7 @@ export function TargetMenu({ targetId }: { targetId: string }) {
             key={a.key}
             title={a.title}
             icon={a.icon}
+            accessories={[{ text: a.label }]}
             actions={
               <ActionPanel>
                 {a.element}

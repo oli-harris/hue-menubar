@@ -31,10 +31,12 @@ function toError(result: { error?: Error; exitCode: number | null; stderr: strin
   return new HueError("failed", result.stderr.trim() || result.error?.message || "Hue command failed");
 }
 
-// Cached: shows the last data at once, then revalidates against the bridge
-export function useHue() {
+// Cached: shows the last data at once. The first screen of a command fetches on mount; pushed screens
+// pass false and read the shared cache, calling revalidate() only after an action.
+export function useHue(fetchOnMount = true) {
   const { data, error, isLoading, revalidate } = useExec(hueBinary(), ["lights", "--json"], {
     timeout: 30000,
+    execute: fetchOnMount,
     keepPreviousData: true,
     parseOutput: (r): HueData => {
       if (r.error || r.exitCode !== 0) throw toError(r);
@@ -49,12 +51,12 @@ export function useHue() {
   return { data, error: error as HueError | undefined, isLoading, revalidate, targets: data && buildTargets(data) };
 }
 
-export function useTarget(id: string): Target | undefined {
-  const { targets } = useHue();
-  return (
+export function useTarget(id: string): { target?: Target; revalidate: () => void } {
+  const { targets, revalidate } = useHue(false);
+  const target =
     targets &&
-    (targets.all.id === id ? targets.all : targets.sections.flatMap((s) => s.targets).find((t) => t.id === id))
-  );
+    (targets.all.id === id ? targets.all : targets.sections.flatMap((s) => s.targets).find((t) => t.id === id));
+  return { target, revalidate };
 }
 
 // Runs a CLI command, rejecting with a HueError. Pass ids, never names.

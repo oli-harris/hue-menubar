@@ -1,14 +1,13 @@
-import { Action, ActionPanel, Color, Grid, Icon } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
-import { run, useHue, useTarget } from "./hue";
+import { run, useTarget } from "./hue";
 import { meshSvg } from "./svg";
 import { svgFile } from "./svg-files";
 import type { HueScene } from "./types";
 
 // Scenes of a room. On a light target only that light's part of the scene is applied.
 export function SceneList({ targetId }: { targetId: string }) {
-  const target = useTarget(targetId);
-  const { revalidate } = useHue();
+  const { target, revalidate } = useTarget(targetId);
   const [showHidden, setShowHidden] = useState(false);
   const room = target?.room;
 
@@ -23,12 +22,7 @@ export function SceneList({ targetId }: { targetId: string }) {
   const item = (scene: HueScene) => (
     <Grid.Item
       key={scene.id}
-      title={scene.name}
-      accessory={
-        scene.id === room.activeSceneID
-          ? { icon: { source: Icon.CircleFilled, tintColor: Color.Green }, tooltip: "Active" }
-          : undefined
-      }
+      title={scene.id === room.activeSceneID ? `${scene.name} · Active` : scene.name}
       content={{ source: svgFile(meshSvg(scene.colours), "scene-glow") }}
       actions={
         <ActionPanel>
@@ -51,7 +45,7 @@ export function SceneList({ targetId }: { targetId: string }) {
   );
 
   return (
-    <Grid columns={6} aspectRatio="3/2" navigationTitle={`${target.name} Scenes`} searchBarPlaceholder="Search scenes">
+    <Grid columns={4} aspectRatio="3/2" navigationTitle={`${target.name} Scenes`} searchBarPlaceholder="Search scenes">
       <Grid.Section title={room.name}>{room.scenes.map(item)}</Grid.Section>
       {showHidden && <Grid.Section title="Hidden">{room.disabledScenes.map(item)}</Grid.Section>}
     </Grid>
