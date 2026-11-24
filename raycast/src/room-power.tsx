@@ -1,4 +1,15 @@
-import { Action, ActionPanel, Color, List, showHUD, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Color,
+  Detail,
+  List,
+  PopToRootType,
+  closeMainWindow,
+  showHUD,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { useEffect, useRef } from "react";
 import { exec, useHue } from "./hue";
 import { SetupView, targetIcon } from "./targets";
@@ -13,13 +24,15 @@ export function RoomPower({ on }: { on: boolean }) {
   const apply = async (room: Target) => {
     try {
       await exec([on ? "on" : "off", room.id]);
+      await closeMainWindow({ clearRootSearch: true, popToRootType: PopToRootType.Immediate });
       await showHUD(`${room.name} ${on ? "on" : "off"}`);
     } catch (e) {
       await showToast({ style: Toast.Style.Failure, title: "Hue failed", message: (e as Error).message });
     }
   };
 
-  const onlyRoom = rooms.length === 1 && !isLoading ? rooms[0] : undefined;
+  // Cached data is enough to act on: the room ids don't change
+  const onlyRoom = rooms.length === 1 ? rooms[0] : undefined;
   useEffect(() => {
     if (onlyRoom && !started.current) {
       started.current = true;
@@ -30,9 +43,11 @@ export function RoomPower({ on }: { on: boolean }) {
   if (error && (error.kind !== "failed" || !data)) {
     return <SetupView kind={error.kind} message={error.message} retry={revalidate} />;
   }
-  if (rooms.length <= 1) {
+  // One room is acted on straight away, so show nothing meanwhile
+  if (rooms.length === 1) return <Detail markdown="" />;
+  if (rooms.length === 0) {
     return (
-      <List isLoading={isLoading || rooms.length === 1}>
+      <List isLoading={isLoading}>
         <List.EmptyView title="No rooms" />
       </List>
     );
