@@ -28,13 +28,6 @@ export function rgbToHex(r: number, g: number, b: number): string {
   );
 }
 
-// Darkens a colour toward black, never below a floor so low levels stay visible
-export function brightnessTint(hex: string, percent: number): string {
-  const factor = 0.25 + 0.75 * (Math.min(Math.max(percent, 0), 100) / 100);
-  const [r, g, b] = hexToRgb(hex);
-  return rgbToHex(r * factor, g * factor, b * factor);
-}
-
 export function hsvToHex(h: number, s: number, v: number): string {
   const f = (n: number) => {
     const k = (n + h / 60) % 6;

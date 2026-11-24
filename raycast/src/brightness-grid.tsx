@@ -1,7 +1,9 @@
-import { Action, ActionPanel, Color, Grid, Icon } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
 import { useState } from "react";
 import { run, useHue, useTarget } from "./hue";
-import { brightnessTint, parsePercent } from "./lib";
+import { parsePercent } from "./lib";
+import { glowSvg } from "./svg";
+import { svgFile } from "./svg-files";
 
 const LEVELS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
@@ -18,10 +20,7 @@ export function BrightnessGrid({ targetId }: { targetId: string }) {
       key={key}
       id={key}
       title={level === 0 ? "Off" : `${level}%`}
-      content={{
-        source: Icon.LightBulb,
-        tintColor: level === 0 ? Color.SecondaryText : brightnessTint(target.colour ?? "#ffd5b3", level),
-      }}
+      content={{ source: svgFile(glowSvg(target.colour ?? "#ffd5b3", level)) }}
       keywords={key === "typed" ? [search] : undefined}
       actions={
         <ActionPanel>

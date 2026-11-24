@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  brightnessTint,
   buildTargets,
   hsvToHex,
   parseColourQuery,
@@ -14,12 +13,6 @@ import {
   stepBrightness,
 } from "./lib";
 import type { HueLight, HueRoom } from "./types";
-
-test("brightnessTint darkens but keeps a floor", () => {
-  assert.equal(brightnessTint("#ff8000", 100), "#ff8000");
-  assert.equal(brightnessTint("#ffffff", 0), "#404040");
-  assert.equal(brightnessTint("#ffffff", 50), "#9f9f9f");
-});
 
 test("hsvToHex", () => {
   assert.equal(hsvToHex(0, 1, 1), "#ff0000");
