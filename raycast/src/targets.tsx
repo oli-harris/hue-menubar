@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Color, Icon, List, openExtensionPreferences } from "@raycast/api";
 import { execFile } from "node:child_process";
 import type { ReactElement } from "react";
+import { SceneList } from "./scene-list";
 import { APP_BUNDLE_ID, run, useHue, useTarget } from "./hue";
 import type { Target } from "./types";
 
@@ -12,7 +13,14 @@ function targetActions(target: Target, revalidate: () => void) {
     icon,
     element: <Action key={key} title={title} icon={icon} onAction={onAction} />,
   });
+  const push = (key: string, title: string, icon: Icon, page: ReactElement) => ({
+    key,
+    title,
+    icon,
+    element: <Action.Push key={key} title={title} icon={icon} target={page} />,
+  });
   return [
+    ...(target.kind === "all" ? [] : [push("scene", "Set scene", Icon.Wand, <SceneList targetId={target.id} />)]),
     make("on", "Turn on", Icon.LightBulb, () => run(["on", target.id], `${target.name} on`, revalidate)),
     make("off", "Turn off", Icon.LightBulbOff, () => run(["off", target.id], `${target.name} off`, revalidate)),
   ];
