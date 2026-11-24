@@ -99,9 +99,18 @@ export function buildTargets({ rooms, unassigned }: HueData): {
       isOn: lights.some((l) => l.isOn),
       colour: groupColour(lights),
       supportsColor: lights.some((l) => l.supportsColor),
+      lights,
     },
     sections,
   };
+}
+
+// A light's colour as it looks at a brightness level (0-100); a floor keeps 10% visible, 0 is off-grey
+export function dimColour(hex: string, level: number): string {
+  if (level <= 0) return "#3a3a3c";
+  const f = 0.2 + 0.8 * (Math.min(level, 100) / 100);
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r * f, g * f, b * f);
 }
 
 // Raycast shifts colours for contrast with its theme unless told not to, which ruins swatches and tints

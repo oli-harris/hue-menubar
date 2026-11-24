@@ -6,6 +6,7 @@ import {
   parseColourQuery,
   parsePercent,
   exactColour,
+  dimColour,
   colourName,
   saturationPercent,
   stepBrightness,
@@ -89,4 +90,11 @@ test("buildTargets lists rooms, their lights, then unassigned lights", () => {
   assert.equal(sections[0].targets[0].supportsColor, true);
   assert.equal(sections[0].targets[1].supportsColor, false);
   assert.equal(all.id, "all");
+});
+
+test("dimmed colour darkens with brightness and greys out at 0", () => {
+  assert.equal(dimColour("#ff8800", 100), "#ff8800");
+  assert.equal(dimColour("#ff8800", 0), "#3a3a3c");
+  const [lo, hi] = [dimColour("#ff8800", 10), dimColour("#ff8800", 60)];
+  assert.ok(parseInt(lo.slice(1, 3), 16) < parseInt(hi.slice(1, 3), 16));
 });

@@ -42,6 +42,7 @@ export interface Target {
   name: string;
   type?: string; // Archetype of the light or room
   room?: HueRoom; // The room itself, or the one a light is in
+  lights?: HueLight[]; // Every light, on the "all" target only
   isOn: boolean;
   brightness?: number;
   colour?: string;

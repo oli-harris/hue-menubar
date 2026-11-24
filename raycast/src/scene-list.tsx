@@ -29,7 +29,7 @@ export function SceneList({ targetId }: { targetId: string }) {
           ? { icon: { source: Icon.CircleFilled, tintColor: Color.Green }, tooltip: "Active" }
           : undefined
       }
-      content={{ source: svgFile(meshSvg(scene.colours)) }}
+      content={{ source: svgFile(meshSvg(scene.colours), "scene-glow") }}
       actions={
         <ActionPanel>
           <Action

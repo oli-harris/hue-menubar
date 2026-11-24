@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { HUE_ICON_PATHS, LIGHT_ICONS, ROOM_ICONS } from "../assets/hue-icons/icons";
-import { glowSvg, lightIconName, lightIconSvg, meshSvg, roomIconName, roomIconSvg } from "./svg";
+import { lightIconName, lightIconSvg, meshSvg, roomIconName, roomIconSvg } from "./svg";
 
 test("archetypes map to icons, with fallbacks", () => {
   const lights: [string | undefined, string][] = [
@@ -61,16 +61,8 @@ test("generated SVGs are well formed", () => {
   }
   for (const type of ["bedroom", "living_room", "kitchen", "dining", "bathroom", "office", "hallway", "other"])
     assertSvg(roomIconSvg(type, "#8a8a8a"));
-  for (const level of [0, 10, 50, 100]) assertSvg(glowSvg("#ffcc00", level));
   assertSvg(meshSvg(["#ff0000", "#00ff00", "#0000ff"]));
   assertSvg(meshSvg([]));
-});
-
-test("glow intensity follows brightness", () => {
-  const opacity = (svg: string) => Number(/offset="0" stop-color="#ffcc00" stop-opacity="([\d.]+)"/.exec(svg)?.[1]);
-  assert.equal(opacity(glowSvg("#ffcc00", 0)), 0);
-  assert.ok(opacity(glowSvg("#ffcc00", 50)) < opacity(glowSvg("#ffcc00", 100)));
-  assert.equal(opacity(glowSvg("#ffcc00", 100)), 1);
 });
 
 test("mesh is based on the average colour, filling the tile", () => {

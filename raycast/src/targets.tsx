@@ -3,13 +3,25 @@ import { execFile } from "node:child_process";
 import type { ReactElement } from "react";
 import { targetActions } from "./actions";
 import { APP_BUNDLE_ID, useHue, useTarget } from "./hue";
-import { GREY, lightIconSvg, roomIconSvg } from "./svg";
+import { basename } from "node:path";
+import { GREY, lightIconSvg, meshSvg, roomIconSvg } from "./svg";
 import { svgFile } from "./svg-files";
 import type { Target } from "./types";
 
+// The room's lit colours as a glow image. Icons of the room and its lights are named
+// "<glow name>~<hash>.svg" so the Raycast glow patch can find the room's glow from any row.
+function roomGlowPrefix(t: Target): string {
+  const lights = t.kind === "all" ? t.lights : t.room?.lights;
+  const colours = lights?.filter((l) => l.isOn && l.colour).map((l) => l.colour as string) ?? [];
+  if (colours.length === 0) return "";
+  const id = t.kind === "all" ? "all" : t.room?.id;
+  return `${basename(svgFile(meshSvg(colours), "room-glow", `${id}~`), ".svg")}~`;
+}
+
 export function targetIcon(t: Target) {
   const colour = t.isOn ? (t.colour ?? "#ffd5b3") : GREY;
-  return { source: svgFile(t.kind === "light" ? lightIconSvg(t.type, colour) : roomIconSvg(t.type, colour)) };
+  const svg = t.kind === "light" ? lightIconSvg(t.type, colour) : roomIconSvg(t.type, colour);
+  return { source: svgFile(svg, "svg", roomGlowPrefix(t)) };
 }
 
 export function SetupView({ kind, message, retry }: { kind: string; message: string; retry: () => void }) {
