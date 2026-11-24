@@ -220,3 +220,7 @@ xcuserdata/
 # UNKNOWN: recommended by others, but I can't discover what these files are
 #
 
+
+raycast/node_modules/
+raycast/dist/
+raycast/raycast-env.d.ts

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "hue-menubar",
+  "title": "Hue Menubar",
+  "description": "Control Philips Hue lights, rooms and scenes through the Hue Menubar app's command line tool.",
+  "icon": "icon.png",
+  "author": "oli-harris",
+  "license": "MIT",
+  "platforms": [
+    "macOS"
+  ],
+  "categories": [
+    "System",
+    "Productivity"
+  ],
+  "preferences": [
+    {
+      "name": "appPath",
+      "title": "Hue Menubar App",
+      "description": "Where the Hue Menubar app is installed.",
+      "type": "textfield",
+      "required": false,
+      "default": "/Applications/huemenubar.app"
+    }
+  ],
+  "commands": [
+    {
+      "name": "lights",
+      "title": "Lights",
+      "subtitle": "Hue",
+      "description": "Pick a light or room, then set its colour, brightness, scene or power.",
+      "mode": "view"
+    },
+    {
+      "name": "set-scene",
+      "title": "Set Scene",
+      "subtitle": "Hue",
+      "description": "Apply a scene to a room, or just one light's part of it.",
+      "mode": "view"
+    },
+    {
+      "name": "set-colour",
+      "title": "Set Colour",
+      "subtitle": "Hue",
+      "description": "Set the colour or white temperature of a light, room or all lights.",
+      "mode": "view"
+    },
+    {
+      "name": "set-brightness",
+      "title": "Set Brightness",
+      "subtitle": "Hue",
+      "description": "Set the brightness of a light, room or all lights.",
+      "mode": "view"
+    },
+    {
+      "name": "turn-on",
+      "title": "Turn on Lights",
+      "subtitle": "Hue",
+      "description": "Turn a light, room or all lights on.",
+      "mode": "view"
+    },
+    {
+      "name": "turn-off",
+      "title": "Turn off Lights",
+      "subtitle": "Hue",
+      "description": "Turn a light, room or all lights off.",
+      "mode": "view"
+    }
+  ],
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@raycast/api": "^2.13.1",
+    "@raycast/utils": "^2.3.3"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "eslint": "^10.15.0",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3"
+  }
+}
