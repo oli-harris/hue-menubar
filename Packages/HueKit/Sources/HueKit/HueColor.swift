@@ -63,3 +63,24 @@ extension HueRGB {
         String(format: "#%02x%02x%02x", Int((r * 255).rounded()), Int((g * 255).rounded()), Int((b * 255).rounded()))
     }
 }
+
+extension HueRGB {
+    // Tanner Helland's approximation of a black body, good for roughly 1000-40000K
+    public static func kelvin(_ kelvin: Double) -> HueRGB {
+        let t = min(max(kelvin, 1000), 40000) / 100
+        let r = t <= 66 ? 255 : 329.698727446 * pow(t - 60, -0.1332047592)
+        let g = t <= 66 ? 99.4708025861 * log(t) - 161.1195681661 : 288.1221695283 * pow(t - 60, -0.0755148492)
+        let b = t >= 66 ? 255 : t <= 19 ? 0 : 138.5177312231 * log(t - 10) - 305.0447927307
+        func c(_ v: Double) -> Double { min(max(v, 0), 255) / 255 }
+        return HueRGB(r: c(r), g: c(g), b: c(b))
+    }
+}
+
+// The single place a bridge colour becomes a display hex, so text and JSON output agree
+enum HueDisplayColour {
+    static func hex(mirek: Int) -> String? {
+        mirek > 0 ? HueRGB.kelvin(1_000_000 / Double(mirek)).hex : nil
+    }
+    
+    static func hex(xy: HueXY) -> String { HueRGB(xy: xy).hex }
+}

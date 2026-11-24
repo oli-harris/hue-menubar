@@ -43,6 +43,7 @@ public struct HueLight: Identifiable, Codable {
     public internal(set) var brightness: Double?    // Percent, nil when the light can't dim
     public internal(set) var xy: HueXY?             // Current colour, nil unless supportsColor
     public internal(set) var mirek: Int?            // Current colour temperature, nil in colour mode
+    public internal(set) var colour: String?        // Approximate #rrggbb of what it shows, kept when off
     public let supportsColor: Bool
     public let supportsTemperature: Bool
     public let mirekMin: Int?                       // nil unless supportsTemperature
@@ -72,10 +73,16 @@ public struct HueLight: Identifiable, Codable {
         brightness = api.dimming?.brightness
         xy = api.color?.xy
         mirek = api.color_temperature?.mirek
+        colour = Self.colour(xy: xy, mirek: mirek)
         supportsColor = api.color != nil
         supportsTemperature = api.color_temperature != nil
         mirekMin = api.color_temperature?.mirek_schema?.mirek_minimum
         mirekMax = api.color_temperature?.mirek_schema?.mirek_maximum
+    }
+    
+    // A mirek means colour temperature mode, as the bridge omits it in colour mode
+    static func colour(xy: HueXY?, mirek: Int?) -> String? {
+        mirek.flatMap(HueDisplayColour.hex(mirek:)) ?? xy.map(HueDisplayColour.hex(xy:))
     }
     
     // Mirrors what the bridge will do with a PUT, so state is current without a refresh
@@ -83,13 +90,25 @@ public struct HueLight: Identifiable, Codable {
         if let on = update.on?.on { isOn = on }
         if let b = update.dimming?.brightness, brightness != nil { brightness = b }
         if let c = update.color?.xy, supportsColor { xy = c }
-        if let m = update.color_temperature?.mirek, supportsTemperature { mirek = min(max(m, mirekRange.lowerBound), mirekRange.upperBound) }
+        if let m = update.color_temperature?.mirek, supportsTemperature { mirek = min(max(m, mirekRange.lowerBound), mirekRange.upperBound); xy = nil }
+        if update.color != nil { mirek = nil }
+        colour = Self.colour(xy: xy, mirek: mirek)
     }
 }
 
 public struct HueScene: Identifiable, Codable {
     public let id: String
     public let name: String
+    public internal(set) var colours: [String] = []     // One #rrggbb per light action, in the room's light order
+}
+
+// Scene actions to hex colours: the room's lights first in order, then any other targets. Actions that
+// set no colour (just on/off or brightness) are skipped.
+func sceneColours(_ actions: [SceneAPI.ActionEntry], lightOrder: [String]) -> [String] {
+    let rank = { (a: SceneAPI.ActionEntry) in lightOrder.firstIndex(of: a.target.rid) ?? lightOrder.count }
+    return actions.enumerated()
+        .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }
+        .compactMap { _, a in a.action.color.map { HueDisplayColour.hex(xy: $0.xy) } ?? a.action.color_temperature.flatMap { HueDisplayColour.hex(mirek: $0.mirek) } }
 }
 
 struct StoredOrder: Codable {
@@ -136,7 +155,7 @@ func assemble(rooms: [RoomAPI], scenes: [SceneAPI], lights: [LightAPI], groups: 
             bridgeName: room.metadata.name,
             scenes: scenes
                 .filter { $0.group.rid == room.id }
-                .map { HueScene(id: $0.id, name: $0.metadata.name) },
+                .map { HueScene(id: $0.id, name: $0.metadata.name, colours: sceneColours($0.actions ?? [], lightOrder: roomLights.map(\.id))) },
             activeSceneID: scenes.first { $0.group.rid == room.id && $0.status?.active.map { $0 != "inactive" } == true }?.id,
             lights: roomLights,
             isOn: group?.on?.on ?? roomLights.contains { $0.isOn },
