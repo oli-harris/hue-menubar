@@ -32,6 +32,7 @@ public final class HueClient {
     @ObservationIgnored var allGroupedLightId: String?
     @ObservationIgnored var sceneActions: [String: [SceneAPI.ActionEntry]] = [:]
 
+    static let rateLimitDelays: [Duration?] = [.milliseconds(300), .seconds(1)]
     static let log = Logger(subsystem: "com.harris.huemenubar", category: "HueClient")
     private let pathMonitor = NWPathMonitor()
 
@@ -174,16 +175,22 @@ public final class HueClient {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
-        let data: Data, response: URLResponse
-        do {
-            (data, response) = try await hueSession.data(for: request)
-        } catch {
-            connection = .unreachable
-            Self.log.error("Request to \(path) failed: \(error)")
-            throw HueError.unreachable(bridgeIP)
+        var data = Data(), response = URLResponse()
+        var code = 0
+        // The bridge answers 429 when it is asked too much at once: wait and try again, twice at most
+        for delay in Self.rateLimitDelays + [nil] {
+            do {
+                (data, response) = try await hueSession.data(for: request)
+            } catch {
+                connection = .unreachable
+                Self.log.error("Request to \(path) failed: \(error)")
+                throw HueError.unreachable(bridgeIP)
+            }
+            code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard code == 429, let delay else { break }
+            try? await Task.sleep(for: delay)
         }
         
-        let code = (response as? HTTPURLResponse)?.statusCode ?? 0
         if code == 401 || code == 403 {
             connection = .unauthorized
             throw HueError.unauthorized
