@@ -1,40 +1,36 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { glowSvg, lightFamily, lightIconSvg, meshSvg, roomFamily, roomIconSvg } from "./svg";
+import { HUE_ICON_PATHS, LIGHT_ICONS, ROOM_ICONS } from "../assets/hue-icons/icons";
+import { glowSvg, lightIconName, lightIconSvg, meshSvg, roomIconName, roomIconSvg } from "./svg";
 
-test("archetypes map to icon families", () => {
-  const cases: [string | undefined, string][] = [
-    ["sultan_bulb", "bulb"],
-    ["classic_bulb", "bulb"],
-    ["candle_bulb", "candle"],
-    ["spot_bulb", "spot"],
-    ["hue_lightstrip", "strip"],
-    ["hue_omniglow", "strip"],
-    ["floor_shade", "floor"],
-    ["floor_lantern", "floor"],
-    ["table_shade", "table"],
-    ["table_wash", "table"],
-    ["pendant_round", "ceiling"],
-    ["ceiling_round", "ceiling"],
-    ["hue_bloom", "orb"],
-    ["hue_go", "orb"],
-    ["hue_iris", "orb"],
-    [undefined, "bulb"],
-    ["something_new", "bulb"],
+test("archetypes map to icons, with fallbacks", () => {
+  const lights: [string | undefined, string][] = [
+    ["sultan_bulb", "bulb-sultan"],
+    ["candle_bulb", "bulb-candle"],
+    ["hue_lightstrip", "lightstrip"],
+    ["hue_omniglow", "lightstrip-wrap"],
+    ["floor_shade", "floor-shade"],
+    ["table_wash", "table-wash"],
+    ["hue_bloom", "bloom"],
+    ["pendant_round", "pendant-round"],
+    [undefined, "bulb-classic"],
+    ["something_new", "bulb-classic"],
   ];
-  for (const [type, family] of cases) assert.equal(lightFamily(type), family, String(type));
+  for (const [type, icon] of lights) assert.equal(lightIconName(type), icon, String(type));
   const rooms: [string | undefined, string][] = [
-    ["bedroom", "bed"],
-    ["living_room", "sofa"],
-    ["kitchen", "kitchen"],
-    ["bathroom", "bath"],
-    ["office", "desk"],
-    ["dining", "dining"],
-    ["hallway", "door"],
-    ["other", "house"],
-    [undefined, "house"],
+    ["bedroom", "room-bedroom"],
+    ["living_room", "room-living"],
+    ["kitchen", "room-kitchen"],
+    ["other", "room-other"],
+    [undefined, "room-other"],
   ];
-  for (const [type, family] of rooms) assert.equal(roomFamily(type), family, String(type));
+  for (const [type, icon] of rooms) assert.equal(roomIconName(type), icon, String(type));
+});
+
+test("every mapped icon has path data", () => {
+  for (const name of [...Object.values(LIGHT_ICONS), ...Object.values(ROOM_ICONS)]) {
+    assert.ok(HUE_ICON_PATHS[name]?.length > 10, name);
+  }
 });
 
 function assertSvg(svg: string) {

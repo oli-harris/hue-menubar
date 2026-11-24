@@ -78,6 +78,8 @@ cd raycast && npm install && npm run dev
 
 Once built, the extension stays installed in Raycast after you stop `npm run dev`.
 
+Light and room icons are from [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) by arallsopp, licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Changes: extracted individual icons, recoloured at runtime.
+
 ## Build from source
 
 Requires Xcode with the macOS 14 SDK.
