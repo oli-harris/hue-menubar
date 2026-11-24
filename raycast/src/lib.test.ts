@@ -8,6 +8,10 @@ import {
   parsePercent,
   previewFileName,
   previewSvg,
+  exactColour,
+  nearestColourName,
+  saturationPercent,
+  stepBrightness,
 } from "./lib";
 import type { HueLight, HueRoom } from "./types";
 
@@ -41,6 +45,27 @@ test("previewSvg is stable and keyed by colours", () => {
   assert.equal(previewFileName(["#ff0000"]), previewFileName(["#ff0000"]));
   assert.notEqual(previewFileName(["#ff0000"]), previewFileName(["#00ff00"]));
   assert.match(previewSvg([]), /#6b6b6b/);
+});
+
+test("exactColour turns off contrast adjustment", () => {
+  assert.deepEqual(exactColour("#ffb3b3"), { light: "#ffb3b3", dark: "#ffb3b3", adjustContrast: false });
+});
+
+test("saturationPercent and nearestColourName", () => {
+  assert.equal(saturationPercent("#ffffff"), 0);
+  assert.equal(saturationPercent("#ff0000"), 100);
+  assert.equal(saturationPercent(hsvToHex(0, 0.25, 1)), 25);
+  assert.equal(nearestColourName("#ff0000"), "red");
+  assert.equal(nearestColourName("#ff8000"), "darkorange");
+});
+
+test("stepBrightness steps by 10 and clamps", () => {
+  assert.equal(stepBrightness(50, true, 1), 60);
+  assert.equal(stepBrightness(95, true, 1), 100);
+  assert.equal(stepBrightness(100, true, 1), 100);
+  assert.equal(stepBrightness(5, true, -1), 0);
+  assert.equal(stepBrightness(40, false, 1), 10); // Up from off starts at 10%
+  assert.equal(stepBrightness(40, false, -1), 0);
 });
 
 test("buildTargets lists rooms, their lights, then unassigned lights", () => {

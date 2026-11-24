@@ -73,6 +73,7 @@ export function buildTargets({ rooms, unassigned }: HueData): {
     id: light.id,
     kind: "light",
     name: light.name,
+    type: light.type,
     room,
     isOn: light.isOn,
     brightness: light.brightness,
@@ -87,6 +88,7 @@ export function buildTargets({ rooms, unassigned }: HueData): {
         id: room.id,
         kind: "room" as const,
         name: room.name,
+        type: room.type,
         room,
         isOn: room.isOn,
         brightness: room.brightness,
@@ -108,6 +110,36 @@ export function buildTargets({ rooms, unassigned }: HueData): {
     },
     sections,
   };
+}
+
+// Raycast shifts colours for contrast with its theme unless told not to, which ruins swatches and tints
+export function exactColour(hex: string) {
+  return { light: hex, dark: hex, adjustContrast: false };
+}
+
+// HSV saturation as a whole percent: 0 for white and greys, 100 for a pure colour
+export function saturationPercent(hex: string): number {
+  const [r, g, b] = hexToRgb(hex);
+  const max = Math.max(r, g, b);
+  return max === 0 ? 0 : Math.round(((max - Math.min(r, g, b)) / max) * 100);
+}
+
+export function nearestColourName(hex: string): string {
+  const [r, g, b] = hexToRgb(hex);
+  let best = "";
+  let bestDistance = Infinity;
+  for (const [name, value] of Object.entries(CSS_COLOURS)) {
+    const [r2, g2, b2] = hexToRgb(value);
+    const d = (r - r2) ** 2 + (g - g2) ** 2 + (b - b2) ** 2;
+    if (d < bestDistance) [best, bestDistance] = [name, d];
+  }
+  return best;
+}
+
+// Next brightness one step (10%) up or down; up from off starts at 10%, 0 means off
+export function stepBrightness(brightness: number | undefined, isOn: boolean, direction: 1 | -1): number {
+  const current = isOn ? Math.round(brightness ?? 100) : 0;
+  return Math.min(Math.max(current + direction * 10, 0), 100);
 }
 
 // Stripes of a scene's colours, a neutral grey when it has none
