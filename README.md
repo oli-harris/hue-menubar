@@ -62,6 +62,18 @@ hue help
 
 Targets match by id or name, case-insensitive; quote names with spaces. Use `room:` or `light:` when a name is both, and `all` for every light. Mistyped names are never auto-corrected, only suggested. Exit codes: 0 ok, 1 failed, 2 not paired, 64 usage error.
 
+## Raycast
+
+A [Raycast](https://raycast.com) extension in `raycast/` wraps the command line tool with commands for Control Lights, Set Scene, Set Colour, Set Brightness and Turn on Room / Turn off Room. It needs Node and the Hue Menubar app, which it finds at `/Applications/huemenubar.app` (change it in the extension's preferences).
+
+```bash
+cd raycast && npm install && npm run dev
+```
+
+Once built, the extension stays installed in Raycast after you stop `npm run dev`.
+
+Light and room icons are from [hass-hue-icons](https://github.com/arallsopp/hass-hue-icons) by arallsopp, licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Changes: extracted individual icons, recoloured at runtime.
+
 ## Build from source
 
 Requires Xcode with the macOS 14 SDK.

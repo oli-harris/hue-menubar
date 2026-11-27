@@ -1,0 +1,53 @@
+/* Injected into Raycast's launcher page by patch.sh; see hue-glow.js. Tune strength here:
+   --full is the scene grid, --soft is the light/room lists and colour/brightness grids. */
+:root {
+  --hue-glow-full: 0.6;
+  --hue-glow-soft: 0.4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hue-glow-full: 0.45;
+    --hue-glow-soft: 0.25;
+  }
+}
+
+/* Window-wide wash. Light mode multiplies (keeps text dark), dark mode screens (keeps text light). */
+.hue-glow-layer {
+  position: fixed;
+  inset: -30%;
+  z-index: 2147483647;
+  pointer-events: none;
+  background: var(--hue-glow-image) center / cover no-repeat, var(--hue-glow-color);
+  filter: blur(70px) saturate(1.4);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.22s ease-in-out;
+}
+@media (prefers-color-scheme: dark) {
+  .hue-glow-layer {
+    mix-blend-mode: screen;
+  }
+}
+.hue-glow-layer.on.hue-glow-full {
+  opacity: calc(var(--hue-glow-full) * var(--hue-glow-strength));
+}
+.hue-glow-layer.on.hue-glow-soft {
+  opacity: calc(var(--hue-glow-soft) * var(--hue-glow-strength));
+}
+
+/* Glow around the selected scene tile */
+.hue-glow-tile {
+  position: relative;
+  overflow: visible !important;
+}
+.hue-glow-tile::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 40%;
+  background: var(--hue-glow-image) center / cover no-repeat;
+  filter: blur(30px) saturate(1.5);
+  opacity: 0.7;
+}

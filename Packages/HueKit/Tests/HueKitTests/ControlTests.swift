@@ -43,11 +43,11 @@ private let ambiance = try! decode(LightAPI.self, """
 
 @Test func assemblesRoomsAndAliases() throws {
     let rooms = try decode(RoomsResponse.self, """
-    {"data":[{"id":"r1","metadata":{"name":"Office"},"services":[{"rid":"g1","rtype":"grouped_light"}],
+    {"data":[{"id":"r1","metadata":{"name":"Office","archetype":"office"},"services":[{"rid":"g1","rtype":"grouped_light"}],
               "children":[{"rid":"d1","rtype":"device"}]}]}
     """).data
     let lights = try decode(LightsResponse.self, """
-    {"data":[{"id":"l1","owner":{"rid":"d1","rtype":"device"},"metadata":{"name":"Desk"},"on":{"on":true}},
+    {"data":[{"id":"l1","owner":{"rid":"d1","rtype":"device"},"metadata":{"name":"Desk","archetype":"floor_shade"},"on":{"on":true}},
              {"id":"l2","owner":{"rid":"d9","rtype":"device"},"metadata":{"name":"Hall"},"on":{"on":false}}]}
     """).data
     let groups = try decode(GroupedLightsResponse.self, #"{"data":[{"id":"g1","on":{"on":true},"dimming":{"brightness":80.0}}]}"#).data
@@ -55,6 +55,7 @@ private let ambiance = try! decode(LightAPI.self, """
     #expect(result.rooms[0].name == "Study" && result.rooms[0].bridgeName == "Office")
     #expect(result.rooms[0].lights.map(\.name) == ["Lamp"] && result.rooms[0].lights[0].bridgeName == "Desk")
     #expect(result.rooms[0].isOn && result.rooms[0].brightness == 80 && result.rooms[0].groupedLightId == "g1")
+    #expect(result.rooms[0].type == "office" && result.rooms[0].lights[0].type == "floor_shade" && result.unassigned[0].type == nil)
     #expect(result.unassigned.map(\.id) == ["l2"])
 }
 

@@ -50,6 +50,7 @@ struct RoomAPI: Decodable {
     
     struct Metadata: Decodable {
         let name: String
+        let archetype: String?      // e.g. "bedroom", "floor_shade"
     }
 }
 
