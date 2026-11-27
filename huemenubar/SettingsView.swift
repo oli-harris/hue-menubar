@@ -79,8 +79,8 @@ struct GeneralSettingsView: View {
                 }
                 
                 Section {
-                    Toggle("Only use local network", isOn: $localNetworkOnly)
-                    Text("Never contact the internet to look up the bridge; only the saved local address is used.")
+                    Toggle("Only refresh on the bridge's network", isOn: $localNetworkOnly)
+                    Text("Saves battery: no polling while you're away from the network your bridge is on.")
                         .font(.caption).foregroundStyle(.secondary)
                     Toggle("Hide menu icon when bridge is unreachable", isOn: $hideWhenUnreachable)
                     Text("The icon returns automatically once the bridge can be reached again.")

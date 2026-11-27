@@ -75,6 +75,12 @@ public final class HueClient {
             fetchStatus = "No bridge paired"
             return
         }
+        // Battery saver: send nothing while away from the bridge's network, keeping the last known rooms
+        if UserDefaults.standard.bool(forKey: "localNetworkOnly"), !HueNetwork.isOnNetwork(of: bridgeIP) {
+            connection = .unreachable
+            fetchStatus = "Not on the bridge's network"
+            return
+        }
         
         do {
             async let roomsData = send("room")
@@ -101,7 +107,7 @@ public final class HueClient {
             fetchStatus = "Error: \(error.localizedDescription)"
             Self.log.error("Refresh failed: \(error)")
             // The router may have given the bridge a new IP; retry once at most
-            if rediscover, connection == .unreachable, !UserDefaults.standard.bool(forKey: "localNetworkOnly"), await updateBridgeIP() {
+            if rediscover, connection == .unreachable, await updateBridgeIP() {
                 await refresh(rediscover: false)
             }
         }
