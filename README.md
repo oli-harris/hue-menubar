@@ -37,19 +37,13 @@ On first launch, settings open on the **Bridge** tab. Follow the guided flow: th
 
 ## Command line
 
-The app includes a `hue` command. Link it into a folder on your `PATH`:
+The app includes a `hue` command. Add the app's Resources folder to your `PATH`, then open a new Terminal window:
 
 ```bash
-ln -sf /Applications/huemenubar.app/Contents/Resources/hue /opt/homebrew/bin/hue
+echo 'export PATH="/Applications/huemenubar.app/Contents/Resources:$PATH"' >> ~/.zshrc
 ```
 
-or add the app's Resources folder to your `PATH` instead:
-
-```bash
-export PATH="/Applications/huemenubar.app/Contents/Resources:$PATH"
-```
-
-Settings > General has a button that copies the link command with the right path. The app must be paired first.
+Settings > General has a button that copies this command with the app's real location. The app must be paired first.
 
 ```
 hue status [--json]                          bridge connection and lights on
